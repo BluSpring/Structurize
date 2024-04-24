@@ -2,15 +2,16 @@ package com.ldtteam.structurize.network.messages.splitting;
 
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Bytes;
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.fabric.NetworkHelper;
 import com.ldtteam.structurize.network.NetworkChannel;
 import com.ldtteam.structurize.network.messages.IMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.fabricmc.api.EnvType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -79,13 +80,13 @@ public class SplitPacketMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
         return null;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         try
         {
@@ -119,14 +120,14 @@ public class SplitPacketMessage implements IMessage
             buffer.release();
 
             //Execute the message.
-            final LogicalSide packetOrigin = ctxIn.getDirection().getOriginationSide();
+            final EnvType packetOrigin = ctxIn.direction().getOriginationSide();
             if (message.getExecutionSide() != null && packetOrigin.equals(message.getExecutionSide()))
             {
                 Log.getLogger().warn("Receving {} at wrong side!", message.getClass().getName());
                 return;
             }
             // boolean param MUST equals true if packet arrived at logical server
-            ctxIn.enqueueWork(() -> message.onExecute(ctxIn, packetOrigin.equals(LogicalSide.CLIENT)));
+            NetworkHelper.enqueueWork(isLogicalServer, () -> message.onExecute(ctxIn, packetOrigin.equals(EnvType.CLIENT)));
         }
         catch (ExecutionException e)
         {

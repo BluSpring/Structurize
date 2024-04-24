@@ -1,13 +1,17 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.blockui.mixin.LiquidBlockAccessor;
 import com.ldtteam.domumornamentum.entity.block.MateriallyTexturedBlockEntity;
 import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.mixin.BucketItemAccessor;
 import com.ldtteam.structurize.tag.ModTags;
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -16,13 +20,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.AirItem;
-import net.minecraft.world.item.BedItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -33,27 +31,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.ImposterProtoChunk;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseChunk;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.SurfaceRules;
-import net.minecraft.world.level.levelgen.WorldGenerationContext;
+import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
@@ -99,7 +85,7 @@ public final class BlockUtils
     {
         if (trueSolidBlocks.isEmpty())
         {
-            ForgeRegistries.BLOCKS.getValues()
+            BuiltInRegistries.BLOCK
                 .stream()
                 .filter(BlockUtils::canBlockSurviveWithoutSupport)
                 .filter(block -> !block.defaultBlockState().isAir() && !(block instanceof LiquidBlock) && !block.builtInRegistryHolder().is(ModTags.WEAK_SOLID_BLOCKS))
@@ -377,7 +363,7 @@ public final class BlockUtils
 
     private static Item getItemFromBlock(final Block block)
     {
-        return GameData.getBlockItemMap().get(block);
+        return BlockItem.byBlock(block);
     }
 
     /**
@@ -494,7 +480,7 @@ public final class BlockUtils
         }
         else if (stack.getItem() instanceof BucketItem)
         {
-            return ((BucketItem) stack.getItem()).getFluid().defaultFluidState().createLegacyBlock();
+            return ((BucketItemAccessor) stack.getItem()).getContent().defaultFluidState().createLegacyBlock();
         }
         else if (stack.getItem() instanceof BlockItem)
         {
@@ -514,7 +500,7 @@ public final class BlockUtils
     {
         if (blockState.getBlock() instanceof final LiquidBlock liquid)
         {
-            return new ItemStack(liquid.getFluid().getBucket(), 1);
+            return new ItemStack(((LiquidBlockAccessor) liquid).getFluid().getBucket(), 1);
         }
         final Item item = getItem(blockState);
         if (item != Items.AIR && item != null)
@@ -584,7 +570,7 @@ public final class BlockUtils
         {
             final Block sourceBlock = blockState.getBlock();
             final BucketItem bucket = (BucketItem) item;
-            final Fluid fluid = bucket.getFluid();
+            final Fluid fluid = ((BucketItemAccessor) bucket).getContent();
 
             // place
             if (sourceBlock instanceof final LiquidBlockContainer liquidContainer)

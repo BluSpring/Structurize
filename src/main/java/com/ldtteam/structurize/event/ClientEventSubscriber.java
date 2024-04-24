@@ -2,27 +2,30 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.blockui.BOScreen;
 import com.ldtteam.structurize.Network;
-import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.client.ModKeyMappings;
-import com.ldtteam.structurize.client.BlueprintRenderer.TransparencyHack;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.items.ItemTagTool;
 import com.ldtteam.structurize.items.ModItems;
 import com.ldtteam.structurize.network.messages.ItemMiddleMouseMessage;
 import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
-import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
+import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.fabricators_of_create.porting_lib.event.client.MouseInputEvents;
+import io.github.fabricators_of_create.porting_lib.event.client.OverlayRenderCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -34,49 +37,59 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 
 public class ClientEventSubscriber
 {
-    @SubscribeEvent
-    public static void renderWorldLastEvent(final RenderGuiOverlayEvent.Pre event)
-    {
-        if ((event.getOverlay() == VanillaGuiOverlay.PLAYER_HEALTH.type() || event.getOverlay() == VanillaGuiOverlay.FOOD_LEVEL.type()) && Minecraft.getInstance().screen instanceof BOScreen &&
-              ((BOScreen) Minecraft.getInstance().screen).getWindow() instanceof WindowExtendedBuildTool)
-        {
-             event.setCanceled(true);
-        }
+    public static void init() {
+        OverlayRenderCallback.EVENT.register((guiGraphics, partialTicks, window, type) -> {
+            if (type == OverlayRenderCallback.Types.PLAYER_HEALTH && Minecraft.getInstance().screen instanceof BOScreen &&
+                ((BOScreen) Minecraft.getInstance().screen).getWindow() instanceof WindowExtendedBuildTool)
+            {
+                return true;
+            }
+
+            return false;
+        });
+
+        /*WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+            var shouldRender = !(Structurize.getConfig().getClient().rendererTransparency.get() > TransparencyHack.THRESHOLD);
+
+            if (shouldRender)
+                renderWorldLastEvent(context);
+        });
+
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+            var shouldRender = Structurize.getConfig().getClient().rendererTransparency.get() > TransparencyHack.THRESHOLD;
+
+            if (shouldRender)
+                renderWorldLastEvent(context);
+        });*/
+
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(ClientEventSubscriber::renderWorldLastEvent);
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            onClientTickEvent();
+        });
+
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            onPreClientTickEvent();
+        });
+
+        MouseInputEvents.BEFORE_SCROLL.register((deltaX, deltaY) -> {
+            return onMouseWheel(deltaY);
+        });
     }
 
 
     /**
      * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
-     *
-     * @param event the catched event.
      */
-    @SubscribeEvent
-    public static void renderWorldLastEvent(final RenderLevelStageEvent event)
+    public static void renderWorldLastEvent(WorldRenderContext context)
     {
-        final Stage when = Structurize.getConfig().getClient().rendererTransparency.get() > TransparencyHack.THRESHOLD ?
-            Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS :
-            Stage.AFTER_TRANSLUCENT_BLOCKS; // otherwise even worse sorting issues arise
-        if (event.getStage() != when)
-        {
-            return;
-        }
-
-        final PoseStack matrixStack = event.getPoseStack();
+        final PoseStack matrixStack = context.matrixStack();
         final MultiBufferSource.BufferSource bufferSource = WorldRenderMacros.getBufferSource();
 
         final Minecraft mc = Minecraft.getInstance();
@@ -95,7 +108,7 @@ public class ClientEventSubscriber
                 final BlockPos pos = previewData.getPos();
                 final BlockPos posMinusOffset = pos.subtract(blueprint.getPrimaryBlockOffset());
 
-                BlueprintHandler.getInstance().draw(previewData, pos, event);
+                BlueprintHandler.getInstance().draw(previewData, pos, context);
                 WorldRenderMacros.renderWhiteLineBox(bufferSource,
                   matrixStack,
                   posMinusOffset,
@@ -151,16 +164,9 @@ public class ClientEventSubscriber
      * Used to catch the clientTickEvent.
      * Call renderer cache cleaning every 5 secs (100 ticks).
      *
-     * @param event the catched event.
      */
-    @SubscribeEvent
-    public static void onClientTickEvent(final ClientTickEvent event)
+    public static void onClientTickEvent()
     {
-        if (event.phase != Phase.END)
-        {
-            return;
-        }
-
         final Minecraft mc = Minecraft.getInstance();
         mc.getProfiler().push("structurize");
 
@@ -183,11 +189,8 @@ public class ClientEventSubscriber
         mc.getProfiler().pop();
     }
 
-    @SubscribeEvent
-    public static void onPreClientTickEvent(@NotNull final ClientTickEvent event)
+    public static void onPreClientTickEvent()
     {
-        if (event.phase != Phase.START) return;
-
         final Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.screen != null || mc.level == null) return;
 
@@ -222,29 +225,28 @@ public class ClientEventSubscriber
         }
     }
 
-    @SubscribeEvent
-    public static void onMouseWheel(final InputEvent.MouseScrollingEvent event)
+    public static boolean onMouseWheel(double scrollDelta)
     {
         final Minecraft mc = Minecraft.getInstance();
-        if (event.isCanceled() || mc.player == null || mc.screen != null || mc.level == null) return;
-        if (!mc.player.isShiftKeyDown()) return;
+        if ( mc.player == null || mc.screen != null || mc.level == null) return true;
+        if (!mc.player.isShiftKeyDown()) return false;
 
         final ItemStack current = mc.player.getInventory().getSelected();
         if (current.getItem() instanceof IScrollableItem scrollableItem)
         {
             final boolean ctrlKey = Screen.hasControlDown();
-            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDelta(), ctrlKey))
+            switch (scrollableItem.onMouseScroll(mc.player, current, scrollDelta, ctrlKey))
             {
                 case PASS:
                     break;
                 case FAIL:
-                    event.setCanceled(true);
-                    break;
+                    return true;
                 default:
-                    event.setCanceled(true);
-                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(event.getScrollDelta(), ctrlKey));
-                    break;
+                    Network.getNetwork().sendToServer(new ItemMiddleMouseMessage(scrollDelta, ctrlKey));
+                    return true;
             }
         }
+
+        return false;
     }
 }

@@ -13,16 +13,14 @@ import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.JavaUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModInfo;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -57,6 +55,12 @@ public class ClientStructurePackLoader
      */
     public static volatile ClientLoadingState loadingState = ClientLoadingState.LOADING;
 
+    public static void init() {
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            onWorldTick();
+        });
+    }
+
     /**
      * Called on client mod construction.
      */
@@ -64,10 +68,12 @@ public class ClientStructurePackLoader
     {
         final List<Path> modPaths = new ArrayList<>();
         final List<String> modList = new ArrayList<>();
-        for (IModInfo mod : ModList.get().getMods())
-        {
-            modPaths.add(mod.getOwningFile().getFile().findResource(BLUEPRINT_FOLDER, mod.getModId()));
-            modList.add(mod.getModId());
+        for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
+            for (Path path : mod.getRootPaths()) {
+                var file = path.resolve(BLUEPRINT_FOLDER + "/" + mod.getMetadata().getId());
+                modPaths.add(file);
+            }
+            modList.add(mod.getMetadata().getId());
         }
 
         if (Minecraft.getInstance() == null)
@@ -142,10 +148,9 @@ public class ClientStructurePackLoader
         });
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onWorldTick(final TickEvent.ClientTickEvent event)
+    public static void onWorldTick()
     {
-        if (event.phase == TickEvent.Phase.START)
+        //if (event.phase == TickEvent.Phase.START)
         {
             if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
             {
@@ -296,9 +301,8 @@ public class ClientStructurePackLoader
                 zis.closeEntry();
 
                 final List<String> modList = new ArrayList<>();
-                for (IModInfo mod : ModList.get().getMods())
-                {
-                    modList.add(mod.getModId());
+                for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
+                    modList.add(mod.getMetadata().getId());
                 }
 
                 // now load what we unzipped.

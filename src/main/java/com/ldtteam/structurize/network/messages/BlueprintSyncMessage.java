@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,13 +86,13 @@ public class BlueprintSyncMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return EnvType.SERVER;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         BlueprintPlacementHandling.handlePlacement(this, ctxIn.getSender());
     }

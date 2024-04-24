@@ -1,8 +1,7 @@
 package com.ldtteam.structurize.storage;
 
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
@@ -44,10 +43,15 @@ public class ClientFutureProcessor
         blueprintDataConsumerQueue.add(processingData);
     }
 
-    @SubscribeEvent
-    public static void onWorldTick(final TickEvent.ClientTickEvent event)
+    public static void init() {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            onWorldTick();
+        });
+    }
+
+    public static void onWorldTick()
     {
-        if (event.phase == TickEvent.Phase.END)
+        //if (event.phase == TickEvent.Phase.END)
         {
             if (!blueprintConsumerQueue.isEmpty() && blueprintConsumerQueue.peek().blueprintFuture.isDone())
             {

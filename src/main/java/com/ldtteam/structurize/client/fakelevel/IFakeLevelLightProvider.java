@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.client.fakelevel;
 
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.lighting.LightEngine;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 
 /**
  * Loosely based on {@link BlockAndTintGetter}
@@ -88,9 +88,9 @@ public interface IFakeLevelLightProvider
      */
     public static class ConfigBasedLightProvider implements IFakeLevelLightProvider
     {
-        private final IntValue configValue;
+        private final ModConfigSpec.IntValue configValue;
 
-        public ConfigBasedLightProvider(final IntValue configValue)
+        public ConfigBasedLightProvider(final ModConfigSpec.IntValue configValue)
         {
             this.configValue = configValue;
         }

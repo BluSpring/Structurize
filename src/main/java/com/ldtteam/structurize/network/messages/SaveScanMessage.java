@@ -1,14 +1,14 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.ClientStructurePackLoader;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
-import net.minecraft.nbt.NbtIo;
+import net.fabricmc.api.EnvType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -78,13 +78,13 @@ public class SaveScanMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
-        return LogicalSide.CLIENT;
+        return EnvType.CLIENT;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         if (compoundNBT != null)
         {

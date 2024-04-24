@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.network.messages;
 
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,13 +73,13 @@ public class ItemMiddleMouseMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return EnvType.SERVER;
     }
 
     @Override
-    public void onExecute(@NotNull final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(@NotNull final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         final ServerPlayer player = ctxIn.getSender();
         final ItemStack current = player.getInventory().getSelected();

@@ -3,14 +3,15 @@ package com.ldtteam.structurize.items;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
-import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.IScrollableItem;
+import com.ldtteam.structurize.api.util.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtil;
 import com.ldtteam.structurize.client.gui.WindowScan;
 import com.ldtteam.structurize.commands.ScanCommand;
+import com.ldtteam.structurize.fabric.CustomHighlightTooltipItem;
 import com.ldtteam.structurize.network.messages.SaveScanMessage;
 import com.ldtteam.structurize.network.messages.ShowScanMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
@@ -23,6 +24,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.fabricators_of_create.porting_lib.item.api.extensions.RepairableItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
@@ -41,7 +43,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -68,7 +73,7 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 /**
  * Item used to scan structures.
  */
-public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, ISpecialBlockPickItem
+public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, ISpecialBlockPickItem, RepairableItem, CustomHighlightTooltipItem
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
     private static final String NBT_ANCHOR_POS  = "structurize:anchor_pos";
@@ -81,7 +86,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
      */
     public ItemScanTool()
     {
-        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON));
+        this(new Item.Properties().durability(0).rarity(Rarity.UNCOMMON));
+    }
+
+    @Override
+    public boolean isRepairable(ItemStack stack) {
+        return false;
     }
 
     /**
@@ -249,7 +259,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
         return Component.empty()
-                .append(super.getHighlightTip(stack, displayName))
+                .append(CustomHighlightTooltipItem.super.getHighlightTip(stack, displayName))
                 .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
                 .append(getCurrentSlotDescription(stack));
     }
@@ -426,7 +436,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             Network.getNetwork().sendToPlayer(new ShowScanMessage(slot.getBox()), player);
 
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.ok", name), false);
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         catch (CommandSyntaxException e)
         {
@@ -453,7 +463,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         if (slot.getName().isBlank() || slot.getName().contains(" "))
         {
             player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badname"));
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
 
@@ -465,7 +475,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         else if (!command.getCommandBlock().getCommand().contains(MOD_ID + " " + ScanCommand.NAME + " "))
         {
             player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badcommand"), false);
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
         else if (!ctrlKey)
@@ -482,7 +492,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
                 if (!currentName.equals(slot.getName()))
                 {
                     player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.different", slot.getName(), currentName), false);
-                    player.playNotifySound(SoundEvents.NOTE_BLOCK_XYLOPHONE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    player.playNotifySound(SoundEvents.NOTE_BLOCK_XYLOPHONE.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                     return;
                 }
             }
@@ -495,7 +505,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         stack.getOrCreateTag().putString(NBT_DIMENSION, command.getLevel().dimension().location().toString());
 
         player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.getName()), false);
-        player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     /**
@@ -516,7 +526,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             if (player.level().isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.nocmd"), false);
-                player.playSound(SoundEvents.NOTE_BLOCK_BIT.get(), 1.0F, 1.0F);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.0F, 1.0F);
             }
             return false;
         }
@@ -526,7 +536,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             if (player.level().isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.dimension"), false);
-                player.playSound(SoundEvents.NOTE_BLOCK_BIT.get(), 1.0F, 1.0F);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.0F, 1.0F);
             }
             return false;
         }
@@ -539,7 +549,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             if (player.level().isClientSide())
             {
                 player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.noscan"), false);
-                player.playSound(SoundEvents.NOTE_BLOCK_BIT.get(), 1.0F, 1.0F);
+                player.playSound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.0F, 1.0F);
             }
             return false;
         }

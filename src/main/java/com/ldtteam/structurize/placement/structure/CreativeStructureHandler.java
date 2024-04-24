@@ -1,21 +1,19 @@
 package com.ldtteam.structurize.placement.structure;
 
-import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.BlockUtils;
-import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.ItemStack;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 /**
  * Creative placement handler that doesn't require resources or tools.
@@ -57,7 +55,7 @@ public class CreativeStructureHandler extends AbstractStructureHandler
 
     @Nullable
     @Override
-    public IItemHandler getInventory()
+    public SlottedStackStorage getInventory()
     {
         return null;
     }

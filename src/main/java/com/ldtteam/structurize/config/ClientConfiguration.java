@@ -5,12 +5,12 @@ import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.network.messages.SyncSettingsToServer;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.BooleanValue;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.ConfigValue;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.DoubleValue;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.IntValue;
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 
 /**
  * Mod client configuration.
@@ -31,7 +31,7 @@ public class ClientConfiguration extends AbstractConfiguration
      *
      * @param builder config builder
      */
-    protected ClientConfiguration(final ForgeConfigSpec.Builder builder)
+    protected ClientConfiguration(final ModConfigSpec.Builder builder)
     {
         createCategory(builder, "blueprint.renderer");
         // if you add anything to this category, also add it #collectPreviewRendererSettings()

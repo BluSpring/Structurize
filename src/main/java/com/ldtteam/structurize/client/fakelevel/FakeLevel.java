@@ -5,12 +5,8 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.*;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.SectionPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer.Continuation;
@@ -47,16 +43,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * As much as general fake level. Features:
@@ -203,12 +193,12 @@ public class FakeLevel extends Level
         return blockEntity;
     }
 
-    @Override
+    /*@Override
     @Nullable
     public BlockEntity getExistingBlockEntity(BlockPos pos)
     {
         return getBlockEntity(pos);
-    }
+    }*/
 
     @Override
     public BlockState getBlockState(final BlockPos pos)
@@ -302,7 +292,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Entity getEntity(int id)
     {
         return levelEntityGetter.get(id);
@@ -411,9 +401,9 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public Explosion explode(@javax.annotation.Nullable Entity p_256233_,
-        @javax.annotation.Nullable DamageSource p_255861_,
-        @javax.annotation.Nullable ExplosionDamageCalculator p_255867_,
+    public Explosion explode(@Nullable Entity p_256233_,
+        @Nullable DamageSource p_255861_,
+        @Nullable ExplosionDamageCalculator p_255867_,
         double p_256447_,
         double p_255732_,
         double p_255717_,
@@ -487,7 +477,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public MapItemSavedData getMapData(String p_46650_)
     {
         // Noop
@@ -495,7 +485,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSeededSound(@javax.annotation.Nullable Player p_220372_,
+    public void playSeededSound(@Nullable Player p_220372_,
         Entity p_220373_,
         Holder<SoundEvent> p_263500_,
         SoundSource p_220375_,
@@ -507,7 +497,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSeededSound(@javax.annotation.Nullable Player p_262953_,
+    public void playSeededSound(@Nullable Player p_262953_,
         double p_263004_,
         double p_263398_,
         double p_263376_,
@@ -553,7 +543,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void levelEvent(@javax.annotation.Nullable Player p_46771_, int p_46772_, BlockPos p_46773_, int p_46774_)
+    public void levelEvent(@Nullable Player p_46771_, int p_46772_, BlockPos p_46773_, int p_46774_)
     {
         // Noop
     }
@@ -587,7 +577,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public boolean destroyBlock(BlockPos p_46626_, boolean p_46627_, @javax.annotation.Nullable Entity p_46628_, int p_46629_)
+    public boolean destroyBlock(BlockPos p_46626_, boolean p_46627_, @Nullable Entity p_46628_, int p_46629_)
     {
         // Noop
         return false;
@@ -595,7 +585,7 @@ public class FakeLevel extends Level
 
     @Override
     public void markAndNotifyBlock(BlockPos p_46605_,
-        @javax.annotation.Nullable LevelChunk levelchunk,
+        @Nullable LevelChunk levelchunk,
         BlockState blockstate,
         BlockState p_46606_,
         int p_46607_,
@@ -685,7 +675,7 @@ public class FakeLevel extends Level
         // Noop
     }
 
-    @Override
+    /*@Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
         // Noop
@@ -702,7 +692,7 @@ public class FakeLevel extends Level
     public void reviveCaps()
     {
         // Noop
-    }
+    }*/
 
     // ========================================
     // ======== SUPER IS FINE METHODS =========
@@ -796,7 +786,7 @@ public class FakeLevel extends Level
         double p_46478_,
         double p_46479_,
         double p_46480_,
-        @javax.annotation.Nullable CompoundTag p_46481_)
+        @Nullable CompoundTag p_46481_)
     {
         super.createFireworks(p_46475_, p_46476_, p_46477_, p_46478_, p_46479_, p_46480_, p_46481_);
     }
@@ -838,7 +828,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public Explosion explode(@javax.annotation.Nullable Entity p_256599_,
+    public Explosion explode(@Nullable Entity p_256599_,
         double p_255914_,
         double p_255684_,
         double p_255843_,
@@ -849,7 +839,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public Explosion explode(@javax.annotation.Nullable Entity p_255682_,
+    public Explosion explode(@Nullable Entity p_255682_,
         double p_255803_,
         double p_256403_,
         double p_256538_,
@@ -861,9 +851,9 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public Explosion explode(@javax.annotation.Nullable Entity p_255653_,
-        @javax.annotation.Nullable DamageSource p_256558_,
-        @javax.annotation.Nullable ExplosionDamageCalculator p_255929_,
+    public Explosion explode(@Nullable Entity p_255653_,
+        @Nullable DamageSource p_256558_,
+        @Nullable ExplosionDamageCalculator p_255929_,
         Vec3 p_256001_,
         float p_255963_,
         boolean p_256099_,
@@ -873,9 +863,9 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public Explosion explode(@javax.annotation.Nullable Entity p_256145_,
-        @javax.annotation.Nullable DamageSource p_256004_,
-        @javax.annotation.Nullable ExplosionDamageCalculator p_255696_,
+    public Explosion explode(@Nullable Entity p_256145_,
+        @Nullable DamageSource p_256004_,
+        @Nullable ExplosionDamageCalculator p_255696_,
         double p_256208_,
         double p_256036_,
         double p_255746_,
@@ -905,7 +895,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public BlockGetter getChunkForCollisions(int p_46711_, int p_46712_)
     {
         return super.getChunkForCollisions(p_46711_, p_46712_);
@@ -924,7 +914,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public List<Entity> getEntities(@javax.annotation.Nullable Entity p_46536_, AABB p_46537_, Predicate<? super Entity> p_46538_)
+    public List<Entity> getEntities(@Nullable Entity p_46536_, AABB p_46537_, Predicate<? super Entity> p_46538_)
     {
         return super.getEntities(p_46536_, p_46537_, p_46538_);
     }
@@ -997,7 +987,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public MinecraftServer getServer()
     {
         return super.getServer();
@@ -1142,7 +1132,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSeededSound(@javax.annotation.Nullable Player p_220363_,
+    public void playSeededSound(@Nullable Player p_220363_,
         double p_220364_,
         double p_220365_,
         double p_220366_,
@@ -1156,7 +1146,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSound(@javax.annotation.Nullable Entity p_252137_,
+    public void playSound(@Nullable Entity p_252137_,
         BlockPos p_251749_,
         SoundEvent p_248842_,
         SoundSource p_251104_,
@@ -1167,7 +1157,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSound(@javax.annotation.Nullable Player p_46560_,
+    public void playSound(@Nullable Player p_46560_,
         BlockPos p_46561_,
         SoundEvent p_46562_,
         SoundSource p_46563_,
@@ -1178,7 +1168,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSound(@javax.annotation.Nullable Player p_46551_,
+    public void playSound(@Nullable Player p_46551_,
         Entity p_46552_,
         SoundEvent p_46553_,
         SoundSource p_46554_,
@@ -1189,7 +1179,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSound(@javax.annotation.Nullable Player p_46543_,
+    public void playSound(@Nullable Player p_46543_,
         double p_46544_,
         double p_46545_,
         double p_46546_,
@@ -1268,13 +1258,13 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void gameEvent(@javax.annotation.Nullable Entity p_220401_, GameEvent p_220402_, Vec3 p_220403_)
+    public void gameEvent(@Nullable Entity p_220401_, GameEvent p_220402_, Vec3 p_220403_)
     {
         super.gameEvent(p_220401_, p_220402_, p_220403_);
     }
 
     @Override
-    public void gameEvent(@javax.annotation.Nullable Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_)
+    public void gameEvent(@Nullable Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_)
     {
         super.gameEvent(p_151549_, p_151550_, p_151551_);
     }
@@ -1298,7 +1288,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public void playSound(@javax.annotation.Nullable Player p_251195_, BlockPos p_250192_, SoundEvent p_249887_, SoundSource p_250593_)
+    public void playSound(@Nullable Player p_251195_, BlockPos p_250192_, SoundEvent p_249887_, SoundSource p_250593_)
     {
         super.playSound(p_251195_, p_250192_, p_249887_, p_250593_);
     }
@@ -1334,7 +1324,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public List<VoxelShape> getEntityCollisions(@javax.annotation.Nullable Entity p_186447_, AABB p_186448_)
+    public List<VoxelShape> getEntityCollisions(@Nullable Entity p_186447_, AABB p_186448_)
     {
         return super.getEntityCollisions(p_186447_, p_186448_);
     }
@@ -1346,13 +1336,13 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public boolean isUnobstructed(@javax.annotation.Nullable Entity p_45828_, VoxelShape p_45829_)
+    public boolean isUnobstructed(@Nullable Entity p_45828_, VoxelShape p_45829_)
     {
         return super.isUnobstructed(p_45828_, p_45829_);
     }
 
     @Override
-    public List<Entity> getEntities(@javax.annotation.Nullable Entity p_45934_, AABB p_45935_)
+    public List<Entity> getEntities(@Nullable Entity p_45934_, AABB p_45935_)
     {
         return super.getEntities(p_45934_, p_45935_);
     }
@@ -1385,10 +1375,10 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public <T extends LivingEntity> T getNearestEntity(List<? extends T> p_45983_,
         TargetingConditions p_45984_,
-        @javax.annotation.Nullable LivingEntity p_45985_,
+        @Nullable LivingEntity p_45985_,
         double p_45986_,
         double p_45987_,
         double p_45988_)
@@ -1397,10 +1387,10 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public <T extends LivingEntity> T getNearestEntity(Class<? extends T> p_45964_,
         TargetingConditions p_45965_,
-        @javax.annotation.Nullable LivingEntity p_45966_,
+        @Nullable LivingEntity p_45966_,
         double p_45967_,
         double p_45968_,
         double p_45969_,
@@ -1410,46 +1400,46 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getNearestPlayer(Entity p_45931_, double p_45932_)
     {
         return super.getNearestPlayer(p_45931_, p_45932_);
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getNearestPlayer(TargetingConditions p_45947_, LivingEntity p_45948_)
     {
         return super.getNearestPlayer(p_45947_, p_45948_);
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getNearestPlayer(TargetingConditions p_45942_, double p_45943_, double p_45944_, double p_45945_)
     {
         return super.getNearestPlayer(p_45942_, p_45943_, p_45944_, p_45945_);
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getNearestPlayer(double p_45919_,
         double p_45920_,
         double p_45921_,
         double p_45922_,
-        @javax.annotation.Nullable Predicate<Entity> p_45923_)
+        @Nullable Predicate<Entity> p_45923_)
     {
         return super.getNearestPlayer(p_45919_, p_45920_, p_45921_, p_45922_, p_45923_);
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getNearestPlayer(double p_45925_, double p_45926_, double p_45927_, double p_45928_, boolean p_45929_)
     {
         return super.getNearestPlayer(p_45925_, p_45926_, p_45927_, p_45928_, p_45929_);
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getNearestPlayer(TargetingConditions p_45950_,
         LivingEntity p_45951_,
         double p_45952_,
@@ -1460,7 +1450,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public Player getPlayerByUUID(UUID p_46004_)
     {
         return super.getPlayerByUUID(p_46004_);
@@ -1605,7 +1595,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public BlockHitResult clipWithInteractionOverride(Vec3 p_45559_,
         Vec3 p_45560_,
         BlockPos p_45561_,
@@ -1718,13 +1708,13 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public boolean collidesWithSuffocatingBlock(@javax.annotation.Nullable Entity p_186438_, AABB p_186439_)
+    public boolean collidesWithSuffocatingBlock(@Nullable Entity p_186438_, AABB p_186439_)
     {
         return super.collidesWithSuffocatingBlock(p_186438_, p_186439_);
     }
 
     @Override
-    public Optional<Vec3> findFreePosition(@javax.annotation.Nullable Entity p_151419_,
+    public Optional<Vec3> findFreePosition(@Nullable Entity p_151419_,
         VoxelShape p_151420_,
         Vec3 p_151421_,
         double p_151422_,
@@ -1741,13 +1731,13 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public Iterable<VoxelShape> getBlockCollisions(@javax.annotation.Nullable Entity p_186435_, AABB p_186436_)
+    public Iterable<VoxelShape> getBlockCollisions(@Nullable Entity p_186435_, AABB p_186436_)
     {
         return super.getBlockCollisions(p_186435_, p_186436_);
     }
 
     @Override
-    public Iterable<VoxelShape> getCollisions(@javax.annotation.Nullable Entity p_186432_, AABB p_186433_)
+    public Iterable<VoxelShape> getCollisions(@Nullable Entity p_186432_, AABB p_186433_)
     {
         return super.getCollisions(p_186432_, p_186433_);
     }
@@ -1777,7 +1767,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public boolean noCollision(@javax.annotation.Nullable Entity p_45757_, AABB p_45758_)
+    public boolean noCollision(@Nullable Entity p_45757_, AABB p_45758_)
     {
         return super.noCollision(p_45757_, p_45758_);
     }
@@ -1837,7 +1827,7 @@ public class FakeLevel extends Level
     }
 
     @Override
-    public boolean destroyBlock(BlockPos p_46954_, boolean p_46955_, @javax.annotation.Nullable Entity p_46956_)
+    public boolean destroyBlock(BlockPos p_46954_, boolean p_46955_, @Nullable Entity p_46956_)
     {
         return super.destroyBlock(p_46954_, p_46955_, p_46956_);
     }

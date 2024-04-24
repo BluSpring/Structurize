@@ -2,18 +2,18 @@ package com.ldtteam.structurize.blockentities;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 public final class ModBlockEntities
 {
     private ModBlockEntities() { /* prevent construction */ }
 
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Constants.MOD_ID);
+    private static final LazyRegistrar<BlockEntityType<?>> BLOCK_ENTITIES = LazyRegistrar.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, Constants.MOD_ID);
 
-    public static DeferredRegister<BlockEntityType<?>> getRegistry()
+    public static LazyRegistrar<BlockEntityType<?>> getRegistry()
     {
         return BLOCK_ENTITIES;
     }

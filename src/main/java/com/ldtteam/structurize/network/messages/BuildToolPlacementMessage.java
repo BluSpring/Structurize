@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.storage.BlueprintPlacementHandling;
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -135,13 +135,13 @@ public class BuildToolPlacementMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return EnvType.SERVER;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         world = ctxIn.getSender().level();
         player = ctxIn.getSender();

@@ -5,9 +5,9 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,7 @@ public final class BlueprintHandler
      * @param pos         position to render at
      * @param ctx         rendering event
      */
-    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final WorldRenderContext ctx)
     {
         if (previewData == null || previewData.getBlueprint() == null)
         {
@@ -108,7 +108,7 @@ public final class BlueprintHandler
      */
     public void drawAtListOfPositions(final BlueprintPreviewData previewData,
         final List<BlockPos> points,
-        final RenderLevelStageEvent ctx)
+        final WorldRenderContext ctx)
     {
         if (points.isEmpty() || previewData == null || previewData.getBlueprint() == null)
         {

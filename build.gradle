@@ -1,29 +1,181 @@
-buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        mavenLocal()
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
+plugins {
+    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.modVersion
+group = project.modGroup
+
+sourceSets {
+    getByName("main") {
+        //java.srcDir("src/main/java")
+        java.srcDir("src/api/java")
+
+        //resources.srcDir("src/datagen/generated/domum_ornamentum")
+        resources.srcDir("src/main/generated")
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/structurize.accesswidener")
+}
+
+loom {
+    runs {
+        // This adds a new gradle task that runs the datagen API: "gradlew runDatagen"
+        datagen {
+            inherit client
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+            vmArg "-Dfabric-api.datagen.modid=${project.modId}"
+
+            runDir "build/datagen"
         }
     }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0+', changing: true
-        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
-        classpath 'de.undercouch:gradle-download-task:4.1.2'
+}
+
+repositories {
+    mavenLocal()
+
+    maven {
+        url "https://maven.architectury.dev/"
+    }
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+
+    maven {
+        name = "DevOS One"
+        url "https://mvn.devos.one/releases/"
+    }
+
+    maven {
+        name = "JitPack"
+        url "https://jitpack.io/"
+    }
+
+    maven {
+        name = "Cafeteria Dev"
+        url "https://maven.cafeteria.dev/releases/"
+    }
+
+    maven {
+        name = "JamiesWhiteShirt Dev"
+        url "https://maven.jamieswhiteshirt.com/libs-release"
+        content {
+            includeGroup("com.jamieswhiteshirt")
+        }
+    }
+
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+
+    maven {
+        url "https://maven.siphalor.de/"
+        name "Siphalor's Maven"
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/mod.gradle'
+dependencies {
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${project.parchment_version}:${project.parchment_release}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-configurations {
-    library
-    implementation.extendsFrom library
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modApi "dev.architectury:architectury-fabric:${project.architectury_version}"
+
+    def portingLibs = ["asm", "accessors", "attributes", "base", "brewing", "client_events", "common", "core", "config", "chunk_loading", "data", "entity", "extensions", "fluids", "gametest", "items", "lazy_registration", "loot", "mixin_extensions", "model_builders", "model_generators", "model_loader", "model_materials", "models", "networking", "obj_loader", "recipe_book_categories", "registries", "tags", "tool_actions", "transfer", "utility" ]
+    for (lib in portingLibs) {
+        modImplementation(include("io.github.fabricators_of_create.Porting-Lib:$lib:${property("porting_lib_version")}"))
+    }
+
+    modImplementation("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}:sources") {
+        transitive = false
+    }
+
+    modApi "com.ldtteam:blockui:${project.blockUiVersion}"
+    modApi "com.ldtteam:domum-ornamentum:${project.domumOrnamentumVersion}"
+
+    include(modImplementation("de.siphalor:amecsapi-1.20:1.5.3+mc1.20-pre1"))
+    include(modImplementation("xyz.bluspring:ForgeCapabilities:1.1.4+1.20"))
 }
 
-minecraft.runs.all {
-    lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.loader_version
+    inputs.property "fabric_version", project.fabric_version
+    inputs.property "architectury_version", project.architectury_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.loader_version,
+                "fabric_version": project.fabric_version,
+                "architectury_version": project.architectury_version
+    }
+}
+
+def targetJavaVersion = 17
+tasks.withType(JavaCompile).configureEach {
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    archivesBaseName = project.modBaseName
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
     }
 }

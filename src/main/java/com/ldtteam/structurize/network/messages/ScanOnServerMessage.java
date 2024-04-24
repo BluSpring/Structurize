@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.items.ItemScanTool;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import com.ldtteam.structurize.util.ScanToolData;
-import net.minecraft.network.FriendlyByteBuf;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -60,13 +60,13 @@ public class ScanOnServerMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return EnvType.SERVER;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         ItemScanTool.saveStructure(ctxIn.getSender().getCommandSenderWorld(), ctxIn.getSender(), this.slot, saveEntities);
     }

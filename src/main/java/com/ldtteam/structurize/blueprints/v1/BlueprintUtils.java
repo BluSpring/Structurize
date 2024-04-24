@@ -1,25 +1,21 @@
 package com.ldtteam.structurize.blueprints.v1;
 
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.client.BlueprintBlockInfoTransformHandler;
 import com.ldtteam.structurize.client.BlueprintEntityInfoTransformHandler;
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.util.BlockEntityInfo;
 import com.ldtteam.structurize.util.BlockInfo;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +35,7 @@ public final class BlueprintUtils
      * @param beLevel The blueprint world.
      * @return A list of tileentities in the blueprint.
      */
-    public static Map<BlockPos, BlockEntity> instantiateTileEntities(final Blueprint blueprint, final Level beLevel, final Map<BlockPos, ModelData> teModelData)
+    public static Map<BlockPos, BlockEntity> instantiateTileEntities(final Blueprint blueprint, final Level beLevel, final Map<BlockPos, Object> teModelData)
     {
         return blueprint.getBlockInfoAsList()
             .stream()
@@ -50,7 +46,7 @@ public final class BlueprintUtils
                 final BlockEntity be = constructTileEntity(blockInfo, beLevel);
                 if (be != null)
                 {
-                    teModelData.put(blockInfo.getPos(), be.getModelData());
+                    teModelData.put(blockInfo.getPos(), be.getRenderData());
                     return new BlockEntityInfo(blockInfo.getPos(), be);
                 }
                 return null;

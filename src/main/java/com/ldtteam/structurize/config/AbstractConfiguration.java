@@ -2,17 +2,10 @@ package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.util.LanguageHandler;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.*;
+import io.github.fabricators_of_create.porting_lib.util.LogicalSidedProvider;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.TickTask;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.common.ForgeConfigSpec.Builder;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
-import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-import net.minecraftforge.common.ForgeConfigSpec.LongValue;
-import net.minecraftforge.common.util.LogicalSidedProvider;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,7 +169,7 @@ public abstract class AbstractConfiguration
 
             if (!newValue.equals(lastValue))
             {
-                LogicalSidedProvider.WORKQUEUE.get(FMLEnvironment.dist.isClient() ? LogicalSide.CLIENT : LogicalSide.SERVER)
+                LogicalSidedProvider.WORKQUEUE.get(FabricLoader.getInstance().getEnvironmentType())
                     .tell(new TickTask(0, () -> listener.onChange(lastValue, newValue)));
                 lastValue = newValue;
             }

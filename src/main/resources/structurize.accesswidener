@@ -1,0 +1,27 @@
+accessWidener v2 named
+
+accessible field net/minecraft/util/datafix/fixes/ChunkPalettedStorageFix FLOWER_POT_MAP Ljava/util/Map; # FLOWER_POT_MAP
+accessible field net/minecraft/util/datafix/fixes/ChunkPalettedStorageFix NOTE_BLOCK_MAP Ljava/util/Map; # NOTE_BLOCK_MAP
+
+# blueprint renderer
+accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V # setPosition
+## blending
+accessible field com/mojang/blaze3d/platform/GlStateManager BLEND Lcom/mojang/blaze3d/platform/GlStateManager$BlendState; # BLEND
+accessible class com/mojang/blaze3d/platform/GlStateManager$BlendState
+accessible class com/mojang/blaze3d/platform/GlStateManager$BooleanState
+accessible field com/mojang/blaze3d/platform/GlStateManager$BooleanState enabled Z # enabled
+
+# DO upgrade from non DO world
+accessible method net/minecraft/server/level/ChunkMap readChunk (Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/nbt/CompoundTag; #readChunk
+accessible field net/minecraft/server/MinecraftServer storageSource Lnet/minecraft/world/level/storage/LevelStorageSource$LevelStorageAccess; #storageSource
+
+# world gen settings
+accessible method net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator createNoiseChunk (Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/levelgen/blending/Blender;Lnet/minecraft/world/level/levelgen/RandomState;)Lnet/minecraft/world/level/levelgen/NoiseChunk; # createNoiseChunk
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Context
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context <init> (Lnet/minecraft/world/level/levelgen/SurfaceSystem;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/levelgen/NoiseChunk;Ljava/util/function/Function;Lnet/minecraft/core/Registry;Lnet/minecraft/world/level/levelgen/WorldGenerationContext;)V
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context updateXZ (II)V # updateXZ
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context updateY (IIIIII)V # updateY
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$SurfaceRule
+
+# keybinds
+accessible field net/minecraft/client/KeyMapping clickCount I # clickCount

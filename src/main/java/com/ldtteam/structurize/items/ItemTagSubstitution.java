@@ -6,13 +6,13 @@ import com.ldtteam.structurize.api.util.Utils;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
 import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.client.TagSubstitutionRenderer;
+import com.ldtteam.structurize.fabric.CustomHighlightTooltipItem;
 import com.ldtteam.structurize.network.messages.AbsorbBlockMessage;
 import com.ldtteam.structurize.tag.ModTags;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,26 +24,21 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
-public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem
+public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem, CustomHighlightTooltipItem
 {
     public ItemTagSubstitution(@NotNull final Properties properties)
     {
         super(ModBlocks.blockTagSubstitution.get(), properties);
     }
 
-    @Override
+    /*@Override
     public void initializeClient(@NotNull final Consumer<IClientItemExtensions> consumer)
     {
         consumer.accept(new IClientItemExtensions()
@@ -54,7 +49,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
                 return TagSubstitutionRenderer.getInstance();
             }
         });
-    }
+    }*/
 
     @NotNull
     @Override
@@ -97,7 +92,8 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     @NotNull
     private ItemStack getPickedBlock(@NotNull Player player, @NotNull BlockPos pos, @NotNull BlockState blockstate)
     {
-        return blockstate.getCloneItemStack(Minecraft.getInstance().hitResult, player.level(), pos, player);
+        return blockstate.getBlock().getCloneItemStack(player.level(), pos, blockstate);
+        //return blockstate.getCloneItemStack(Minecraft.getInstance().hitResult, player.level(), pos, player);
     }
 
     private void clearAbsorbedBlock(@NotNull ItemStack stack)
@@ -135,9 +131,13 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     {
         if (blockentity == null) return true;
 
-        final ITag<BlockEntityType<?>> tag = ForgeRegistries.BLOCK_ENTITY_TYPES.tags()
+        var tag = BuiltInRegistries.BLOCK_ENTITY_TYPE
                 .getTag(ModTags.SUBSTITUTION_ABSORB_WHITELIST);
-        return tag.contains(blockentity.getType());
+
+        if (tag.isEmpty())
+            return false;
+
+        return tag.orElseThrow().contains(Holder.direct(blockentity.getType()));
     }
 
     /**
@@ -159,12 +159,12 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         if (!absorbed.isEmpty())
         {
             return Component.empty()
-                    .append(super.getHighlightTip(stack, displayName))
+                    .append(CustomHighlightTooltipItem.super.getHighlightTip(stack, displayName))
                     .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
                     .append(absorbed.getItemStack().getHoverName());
         }
 
-        return super.getHighlightTip(stack, displayName);
+        return CustomHighlightTooltipItem.super.getHighlightTip(stack, displayName);
     }
 
     @NotNull

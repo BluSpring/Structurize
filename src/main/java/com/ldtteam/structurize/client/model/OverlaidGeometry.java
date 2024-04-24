@@ -1,12 +1,12 @@
 package com.ldtteam.structurize.client.model;
 
+import io.github.fabricators_of_create.porting_lib.models.geometry.IUnbakedGeometry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 
 import java.util.function.Function;
 
@@ -23,14 +23,7 @@ public class OverlaidGeometry implements IUnbakedGeometry<OverlaidGeometry>
     }
 
     @Override
-    public BakedModel bake(
-      final IGeometryBakingContext context,
-      final ModelBaker baker,
-      final Function<Material, TextureAtlasSprite> spriteGetter,
-      final ModelState modelState,
-      final ItemOverrides overrides,
-      final ResourceLocation modelLocation)
-    {
+    public BakedModel bake(BlockModel context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation, boolean isGui3d) {
         UnbakedModel unbaked = baker.getModel(overlayModelId);
         BakedModel baked = unbaked.bake(baker, spriteGetter, modelState, overlayModelId);
 

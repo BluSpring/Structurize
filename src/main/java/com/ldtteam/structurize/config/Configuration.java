@@ -1,13 +1,17 @@
 package com.ldtteam.structurize.config;
 
 import com.ldtteam.structurize.config.AbstractConfiguration.ConfigWatcher;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import io.github.fabricators_of_create.porting_lib.config.ConfigRegistry;
+import io.github.fabricators_of_create.porting_lib.config.ConfigType;
+import io.github.fabricators_of_create.porting_lib.config.ModConfig;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.ConfigValue;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.ValueSpec;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,17 +43,18 @@ public class Configuration
      */
     public Configuration(final ModContainer modContainer)
     {
-        final Pair<ServerConfiguration, ForgeConfigSpec> ser = new ForgeConfigSpec.Builder().configure(ServerConfiguration::new);
-        server = new ModConfig(ModConfig.Type.SERVER, ser.getRight(), modContainer);
+        final Pair<ServerConfiguration, ModConfigSpec> ser = new ModConfigSpec.Builder().configure(ServerConfiguration::new);
+        ConfigRegistry.registerConfig(modContainer.getMetadata().getId(), ConfigType.SERVER, ser.getRight());
+        server = ConfigRegistry.getConfigs().get(modContainer.getMetadata().getId()).get(ConfigType.SERVER);
         serverConfig = ser.getLeft();
-        modContainer.addConfig(server);
+        //modContainer.addConfig(server);
 
-        if (FMLEnvironment.dist.isClient())
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT)
         {
-            final Pair<ClientConfiguration, ForgeConfigSpec> cli = new ForgeConfigSpec.Builder().configure(ClientConfiguration::new);
-            client = new ModConfig(ModConfig.Type.CLIENT, cli.getRight(), modContainer);
+            final Pair<ClientConfiguration, ModConfigSpec> cli = new ModConfigSpec.Builder().configure(ClientConfiguration::new);
+            ConfigRegistry.registerConfig(modContainer.getMetadata().getId(), ConfigType.CLIENT, cli.getRight());
+            client = ConfigRegistry.getConfigs().get(modContainer.getMetadata().getId()).get(ConfigType.CLIENT);
             clientConfig = cli.getLeft();
-            modContainer.addConfig(client);
 
             activeModConfigs = new ModConfig[] {client, server};
             activeConfigs = new AbstractConfiguration[] {clientConfig, serverConfig};
@@ -152,7 +157,7 @@ public class Configuration
                 }
             }
 
-            if (!FMLEnvironment.production)
+            if (FabricLoader.getInstance().isDevelopmentEnvironment())
             {
                 throw new RuntimeException("Cannot find backing ValueSpec for: " + value.getPath());
             }

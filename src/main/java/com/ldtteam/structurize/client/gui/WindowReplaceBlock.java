@@ -3,7 +3,10 @@ package com.ldtteam.structurize.client.gui;
 import com.google.common.collect.ImmutableList;
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
-import com.ldtteam.blockui.controls.*;
+import com.ldtteam.blockui.controls.Button;
+import com.ldtteam.blockui.controls.ItemIcon;
+import com.ldtteam.blockui.controls.Text;
+import com.ldtteam.blockui.controls.TextField;
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.structurize.Network;
@@ -11,25 +14,22 @@ import com.ldtteam.structurize.api.util.ItemStackUtils;
 import com.ldtteam.structurize.api.util.ItemStorage;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.mixin.BucketItemAccessor;
 import com.ldtteam.structurize.network.messages.ReplaceBlockMessage;
 import com.ldtteam.structurize.util.BlockUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.AirItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.level.material.Fluids;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -182,9 +182,9 @@ public class WindowReplaceBlock extends AbstractWindowSkeleton
     private void updateResources()
     {
         allItems.clear();
-        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(ForgeRegistries.ITEMS.iterator(), Spliterator.ORDERED), false)
+        allItems.addAll(ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(BuiltInRegistries.ITEM.iterator(), Spliterator.ORDERED), false)
                                                .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                                                                                                                          && ((BucketItem) item).getFluid() != Fluids.EMPTY))
+                                                                                                                          && ((BucketItemAccessor) item).getContent() != Fluids.EMPTY))
                                                .map(s -> new ItemStorage(new ItemStack(s)))
                                                .collect(Collectors.toList())));
 

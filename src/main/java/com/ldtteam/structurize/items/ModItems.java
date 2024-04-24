@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.api.util.constant.Constants;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
@@ -15,9 +15,9 @@ public final class ModItems
 {
     private ModItems() { /* prevent construction */ }
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
+    private static final LazyRegistrar<Item> ITEMS = LazyRegistrar.create(BuiltInRegistries.ITEM, Constants.MOD_ID);
 
-    public static DeferredRegister<Item> getRegistry()
+    public static LazyRegistrar<Item> getRegistry()
     {
         return ITEMS;
     }

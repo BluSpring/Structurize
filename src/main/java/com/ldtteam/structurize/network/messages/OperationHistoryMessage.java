@@ -1,13 +1,13 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.client.gui.WindowUndoRedo;
 import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
+import net.fabricmc.api.EnvType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -51,13 +51,13 @@ public class OperationHistoryMessage implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
         return null;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         if (isLogicalServer)
         {

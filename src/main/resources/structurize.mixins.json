@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "com.ldtteam.structurize.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "client": [
+        "GuiMixin"
+    ],
+    "mixins": [
+        "BucketItemAccessor",
+        "RenderStateShardAccessor"
+    ],
+    "minVersion": "0.8"
+}

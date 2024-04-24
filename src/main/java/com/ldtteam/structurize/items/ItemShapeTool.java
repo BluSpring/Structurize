@@ -2,12 +2,12 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
 public class ItemShapeTool extends AbstractItemStructurize
@@ -46,11 +46,8 @@ public class ItemShapeTool extends AbstractItemStructurize
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
-
     @Override
-    public ItemStack getCraftingRemainingItem(final ItemStack itemStack)
-    {
-        //we want to return the shape tool when use for crafting
+    public ItemStack getRecipeRemainder(ItemStack itemStack) {
         if (ItemStackUtils.isEmpty(itemStack))
         {
             return ItemStack.EMPTY;
@@ -59,9 +56,7 @@ public class ItemShapeTool extends AbstractItemStructurize
     }
 
     @Override
-    public boolean hasCraftingRemainingItem(final ItemStack itemStack)
-    {
-        //we want to return the shape tool when use for crafting
-        return !ItemStackUtils.isEmpty(itemStack);
+    public boolean hasCraftingRemainingItem() {
+        return true;
     }
 }

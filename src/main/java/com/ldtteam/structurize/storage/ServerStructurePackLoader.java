@@ -8,15 +8,18 @@ import com.ldtteam.structurize.util.IOPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -57,6 +60,12 @@ public class ServerStructurePackLoader
      */
     public static volatile ServerStructurePackLoader.ServerLoadingState loadingState = ServerLoadingState.UNINITIALIZED;
 
+    public static void init() {
+        ServerTickEvents.END_WORLD_TICK.register(world -> {
+            onWorldTick(world);
+        });
+    }
+
     /**
      * Called on server mod construction.
      */
@@ -65,10 +74,13 @@ public class ServerStructurePackLoader
         loadingState = ServerLoadingState.LOADING;
         final List<Path> modPaths = new ArrayList<>();
         final List<String> modList = new ArrayList<>();
-        for (IModInfo mod : ModList.get().getMods())
-        {
-            modPaths.add(mod.getOwningFile().getFile().findResource(BLUEPRINT_FOLDER, mod.getModId()));
-            modList.add(mod.getModId());
+
+        for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
+            for (Path path : mod.getRootPaths()) {
+                var file = path.resolve(BLUEPRINT_FOLDER + "/" + mod.getMetadata().getId());
+                modPaths.add(file);
+            }
+            modList.add(mod.getMetadata().getId());
         }
 
         final Path gameFolder = new File(".").toPath();
@@ -177,17 +189,16 @@ public class ServerStructurePackLoader
         }
     }
 
-    @SubscribeEvent
-    public static void onWorldTick(final TickEvent.LevelTickEvent event)
+    public static void onWorldTick(final ServerLevel level)
     {
-        if (event.phase == TickEvent.Phase.END && !event.level.isClientSide())
+        //if (event.phase == TickEvent.Phase.END && !event.level.isClientSide())
         {
-            if (event.level.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
+            if (level.getGameTime() % 20 == 0 && loadingState == ServerLoadingState.FINISHED_LOADING && !clientSyncRequests.isEmpty())
             {
                 loadingState = ServerLoadingState.FINISHED_SYNCING;
                 for (final Map.Entry<UUID, Map<String, Double>> entry : clientSyncRequests.entrySet())
                 {
-                    final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(entry.getKey());
+                    final ServerPlayer player = (ServerPlayer) level.getPlayerByUUID(entry.getKey());
                     if (player != null)
                     {
                         handleClientUpdate(entry.getValue(), player);
@@ -199,7 +210,7 @@ public class ServerStructurePackLoader
             if (!messageSendTasks.isEmpty())
             {
                 final PackagedPack packData = messageSendTasks.poll();
-                final ServerPlayer player = (ServerPlayer) event.level.getPlayerByUUID(packData.player);
+                final ServerPlayer player = (ServerPlayer) level.getPlayerByUUID(packData.player);
                 // If the player logged off, we can just skip.
                 if (player != null)
                 {

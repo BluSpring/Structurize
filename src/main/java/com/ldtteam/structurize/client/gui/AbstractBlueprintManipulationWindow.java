@@ -5,12 +5,7 @@ import com.ldtteam.blockui.Alignment;
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
-import com.ldtteam.blockui.controls.ButtonImage;
-import com.ldtteam.blockui.controls.Gradient;
-import com.ldtteam.blockui.controls.Image;
-import com.ldtteam.blockui.controls.ImageRepeatable;
-import com.ldtteam.blockui.controls.Text;
-import com.ldtteam.blockui.controls.TextFieldVanilla;
+import com.ldtteam.blockui.controls.*;
 import com.ldtteam.blockui.controls.TextField.Filter;
 import com.ldtteam.blockui.views.ScrollingList;
 import com.ldtteam.blockui.views.View;
@@ -27,22 +22,25 @@ import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.ConfigValue;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.DoubleValue;
+import io.github.fabricators_of_create.porting_lib.config.ModConfigSpec.ValueSpec;
+import io.github.fabricators_of_create.porting_lib.util.KeyBindingHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
-import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.*;
 import static com.ldtteam.structurize.api.util.constant.GUIConstants.*;
@@ -275,43 +273,43 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
 
         final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
 
-        if (ModKeyMappings.MOVE_FORWARD.get().isActiveAndMatches(inputKey))
+        if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MOVE_FORWARD.get(), inputKey))
         {
             moveForwardClicked();
         }
-        else if (ModKeyMappings.MOVE_BACK.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MOVE_BACK.get(), inputKey))
         {
             moveBackClicked();
         }
-        else if (ModKeyMappings.MOVE_LEFT.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MOVE_LEFT.get(), inputKey))
         {
             moveLeftClicked();
         }
-        else if (ModKeyMappings.MOVE_RIGHT.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MOVE_RIGHT.get(), inputKey))
         {
             moveRightClicked();
         }
-        else if (ModKeyMappings.MOVE_UP.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MOVE_UP.get(), inputKey))
         {
             moveUpClicked();
         }
-        else if (ModKeyMappings.MOVE_DOWN.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MOVE_DOWN.get(), inputKey))
         {
             moveDownClicked();
         }
-        else if (ModKeyMappings.ROTATE_CW.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.ROTATE_CW.get(), inputKey))
         {
             rotateRightClicked();
         }
-        else if (ModKeyMappings.ROTATE_CCW.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.ROTATE_CCW.get(), inputKey))
         {
             rotateLeftClicked();
         }
-        else if (ModKeyMappings.MIRROR.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.MIRROR.get(), inputKey))
         {
             mirrorClicked();
         }
-        else if (ModKeyMappings.PLACE.get().isActiveAndMatches(inputKey))
+        else if (KeyBindingHelper.isActiveAndMatches(ModKeyMappings.PLACE.get(), inputKey))
         {
             confirmClicked();
         }

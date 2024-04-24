@@ -1042,7 +1042,8 @@ public final class PlacementHandlers
                 {
                     world.setBlockEntity(newTile);
                 }
-                world.getBlockState(pos).rotate(world, pos, settings.rotation);
+                //world.getBlockState(pos).rotate(world, pos, settings.rotation);
+                world.getBlockState(pos).rotate(settings.rotation);
                 world.getBlockState(pos).mirror(settings.mirror);
             }
         }

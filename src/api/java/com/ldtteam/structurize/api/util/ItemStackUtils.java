@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.api.util;
 
+import com.ldtteam.structurize.fabric.EntityHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -9,7 +11,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
-import net.minecraft.world.entity.vehicle.MinecartChest;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -17,11 +18,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.bluspring.forgecapabilities.capabilities.ForgeCapabilities;
+import xyz.bluspring.forgecapabilities.capabilities.ICapabilityProvider;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,9 +67,9 @@ public final class ItemStackUtils
         }
 
         final List<ItemStack> items = new ArrayList<>();
-        for (final IItemHandler handler : getItemHandlersFromProvider(tileEntity))
+        for (final SlottedStackStorage handler : getItemHandlersFromProvider(tileEntity))
         {
-            for (int slot = 0; slot < handler.getSlots(); slot++)
+            for (int slot = 0; slot < handler.getSlotCount(); slot++)
             {
                 final ItemStack stack = handler.getStackInSlot(slot);
                 if (!ItemStackUtils.isEmpty(stack))
@@ -107,9 +107,9 @@ public final class ItemStackUtils
      * @param provider The provider to get the IItemHandlers from.
      * @return A list with all the unique IItemHandlers a provider has.
      */
-    public static Set<IItemHandler> getItemHandlersFromProvider(final ICapabilityProvider provider)
+    public static Set<SlottedStackStorage> getItemHandlersFromProvider(final ICapabilityProvider provider)
     {
-        final Set<IItemHandler> handlerSet = new HashSet<>();
+        final Set<SlottedStackStorage> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
            provider.getCapability(ForgeCapabilities.ITEM_HANDLER, side).ifPresent(handlerSet::add);
@@ -171,7 +171,7 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ArmorStand)
             {
-                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
+                request.add(EntityHelper.getPickedResult(entity, new HitResult(Vec3.atLowerCornerOf(pos)) {
                     @Override
                     public Type getType()
                     {
@@ -183,7 +183,7 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ContainerEntity containerEntity)
             {
-                request.add(entity.getPickedResult(new HitResult(Vec3.atLowerCornerOf(pos)) {
+                request.add(EntityHelper.getPickedResult(entity, new HitResult(Vec3.atLowerCornerOf(pos)) {
                     @Override
                     public Type getType()
                     {

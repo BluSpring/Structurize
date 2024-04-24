@@ -4,24 +4,23 @@ import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.tag.ModTags;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.nbt.*;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.HangingEntity;
-import net.minecraft.nbt.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.SharedConstants;
-import net.minecraft.util.datafix.fixes.References;
-import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
@@ -30,9 +29,8 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
-
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
+import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE.*;
 
 /**
  * @see <a href="http://dark-roleplay.net/other/blueprint_format.php">Blueprint V1 Specification</a>
@@ -80,14 +78,14 @@ public class BlueprintUtil
             {
                 continue;
             }
-            String modName = ForgeRegistries.BLOCKS.getKey(state.getBlock()).getNamespace();
+            String modName = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace();
 
             short x = (short) (mutablePos.getX() - pos.getX()), y = (short) (mutablePos.getY() - pos.getY()),
               z = (short) (mutablePos.getZ() - pos.getZ());
 
             if (!modName.equals("minecraft") && !modName.equals(MOD_ID))
             {
-                if (!ModList.get().getModContainerById(modName).isPresent())
+                if (FabricLoader.getInstance().getModContainer(modName).isEmpty())
                 {
                     structure[y][z][x] = (short) pallete.indexOf(Blocks.AIR.defaultBlockState());
                     continue;
@@ -550,7 +548,7 @@ public class BlueprintUtil
             for (int i = 0; i < modListSize; i++)
             {
                 requiredMods.add((modsList.get(i)).getAsString());
-                if (!requiredMods.get(i).equals("minecraft") && !ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
+                if (!requiredMods.get(i).equals("minecraft") && !FabricLoader.getInstance().getModContainer(requiredMods.get(i)).isPresent())
                 {
                     LogManager.getLogger().warn("Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
                     missingMods.add(requiredMods.get(i));

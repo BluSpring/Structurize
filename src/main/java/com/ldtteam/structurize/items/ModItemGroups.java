@@ -1,24 +1,21 @@
 package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.blocks.ModBlocks;
+import io.github.fabricators_of_create.porting_lib.util.LazyRegistrar;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.MOD_ID;
 
 /**
  * Class used to handle the creativeTab of structurize.
  */
-@Mod.EventBusSubscriber
 public final class ModItemGroups
 {
-    public static final  DeferredRegister<CreativeModeTab> TAB_REG = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+    public static final LazyRegistrar<CreativeModeTab> TAB_REG = LazyRegistrar.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
 
     public static final RegistryObject<CreativeModeTab> GENERAL = TAB_REG.register("general", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 1).icon(() -> new ItemStack(ModItems.buildTool.get())).title(Component.translatable("itemGroup." + MOD_ID)).displayItems((config, output) -> {
         output.accept(ModBlocks.blockSubstitution.get());

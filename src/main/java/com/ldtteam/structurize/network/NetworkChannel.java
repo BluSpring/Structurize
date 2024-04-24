@@ -3,25 +3,26 @@ package com.ldtteam.structurize.network;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.constant.Constants;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.network.messages.splitting.SplitPacketMessage;
+import io.github.fabricators_of_create.porting_lib.util.ServerLifecycleHooks;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import me.pepperbell.simplenetworking.SimpleChannel;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class NetworkChannel
     /**
      * Forge network channel
      */
-    private final        SimpleChannel rawChannel;
+    private final SimpleChannel rawChannel;
 
     /**
      * The messages that this channel can process, as viewed from a message id.
@@ -72,8 +73,8 @@ public class NetworkChannel
      */
     public NetworkChannel(final String channelName)
     {
-        final String modVersion = ModList.get().getModContainerById(Constants.MOD_ID).get().getModInfo().getVersion().toString();
-        rawChannel = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MOD_ID, channelName), () -> modVersion, str -> str.equals(modVersion), str -> str.equals(modVersion));
+        final String modVersion = FabricLoader.getInstance().getModContainer(Constants.MOD_ID).orElseThrow().getMetadata().getVersion().getFriendlyString();
+        rawChannel = new SimpleChannel(new ResourceLocation(Constants.MOD_ID, channelName));
     }
 
     /**
@@ -83,7 +84,7 @@ public class NetworkChannel
     {
         setupInternalMessages();
 
-        int idx = 0;
+        int idx = 1;
         registerMessage(++idx, RemoveBlockMessage.class, RemoveBlockMessage::new);
         registerMessage(++idx, RemoveEntityMessage.class, RemoveEntityMessage::new);
         registerMessage(++idx, SaveScanMessage.class, SaveScanMessage::new);
@@ -119,12 +120,14 @@ public class NetworkChannel
 
     private void setupInternalMessages()
     {
-        rawChannel.registerMessage(0, SplitPacketMessage.class, IMessage::toBytes, SplitPacketMessage::new, (msg, ctxIn) -> {
+        rawChannel.registerC2SPacket(SplitPacketMessage.class, 0, SplitPacketMessage::new);
+        rawChannel.registerS2CPacket(SplitPacketMessage.class, 1, SplitPacketMessage::new);
+        /*rawChannel.registerMessage(0, SplitPacketMessage.class, IMessage::toBytes, SplitPacketMessage::new, (msg, ctxIn) -> {
             final net.minecraftforge.network.NetworkEvent.Context ctx = ctxIn.get();
             final LogicalSide packetOrigin = ctx.getDirection().getOriginationSide();
             ctx.setPacketHandled(true);
             msg.onExecute(ctx, packetOrigin.equals(LogicalSide.CLIENT));
-        });
+        });*/
     }
 
     /**
@@ -159,7 +162,7 @@ public class NetworkChannel
      */
     public void sendToPlayer(final IMessage msg, final ServerPlayer player)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.PLAYER.with(() -> player), s));
+        handleSplitting(msg, s -> rawChannel.sendToClient(s, player));
     }
 
     /**
@@ -168,7 +171,7 @@ public class NetworkChannel
      * @param msg message to send
      * @param ctx network context
      */
-    public void sendToOrigin(final IMessage msg, final NetworkEvent.Context ctx)
+    public void sendToOrigin(final IMessage msg, final NetworkContext ctx)
     {
         final ServerPlayer player = ctx.getSender();
         if (player != null) // side check
@@ -189,7 +192,7 @@ public class NetworkChannel
      */
     public void sendToDimension(final IMessage msg, final ResourceKey<Level> dim)
     {
-        rawChannel.send(PacketDistributor.DIMENSION.with(() -> dim), msg);
+        rawChannel.sendToClientsInWorld(msg, ServerLifecycleHooks.getCurrentServer().getLevel(dim));
     }
 
     /**
@@ -197,11 +200,10 @@ public class NetworkChannel
      *
      * @param msg message to send
      * @param pos target position and radius
-     * @see PacketDistributor.TargetPoint
      */
-    public void sendToPosition(final IMessage msg, final PacketDistributor.TargetPoint pos)
+    public void sendToPosition(final IMessage msg, ServerLevel level, Vec3 pos, double radius)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.NEAR.with(() -> pos), s));
+        handleSplitting(msg, s -> rawChannel.sendToClientsAround(s, level, pos, radius));
     }
 
     /**
@@ -211,7 +213,7 @@ public class NetworkChannel
      */
     public void sendToEveryone(final IMessage msg)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.ALL.noArg(), s));
+        handleSplitting(msg, s -> rawChannel.sendToClientsInCurrentServer(s));
     }
 
     /**
@@ -228,7 +230,7 @@ public class NetworkChannel
      */
     public void sendToTrackingEntity(final IMessage msg, final Entity entity)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), s));
+        handleSplitting(msg, s -> rawChannel.sendToClientsTracking(s, entity));
     }
 
     /**
@@ -245,7 +247,7 @@ public class NetworkChannel
      */
     public void sendToTrackingEntityAndSelf(final IMessage msg, final Entity entity)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), s));
+        handleSplitting(msg, s -> rawChannel.sendToClientsTrackingAndSelf(s, entity));
     }
 
     /**
@@ -256,7 +258,7 @@ public class NetworkChannel
      */
     public void sendToTrackingChunk(final IMessage msg, final LevelChunk chunk)
     {
-        handleSplitting(msg, s -> rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), s));
+        handleSplitting(msg, s -> rawChannel.sendToClientsTracking(s, (ServerLevel) chunk.getLevel(), chunk.getPos()));
     }
 
     /**
@@ -283,7 +285,7 @@ public class NetworkChannel
 
         //Some tracking variables.
         //Max packet size: 90% of maximum.
-        final int max_packet_size = msg.getExecutionSide() == LogicalSide.SERVER ? 30000 : 943718; //This is 90% of max packet size.
+        final int max_packet_size = msg.getExecutionSide() == EnvType.SERVER ? 30000 : 943718; //This is 90% of max packet size.
         //The current index in the data array.
         int currentIndex = 0;
         //The current index for the split packets.

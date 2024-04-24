@@ -1,0 +1,40 @@
+{
+    "schemaVersion": 1,
+    "id": "structurize",
+    "version": "${version}",
+    "name": "Structurize",
+    "description": "An astonishing way to copy & paste structures!\n\nAllows you to:\n - save structures of your choice into a file of small size\n - load them back and place them anywhere anytime\n - create various shapes using math formulas\n - and many other nice things a great builder would love to have!",
+    "authors": [
+        "LDT Team",
+        "BluSpring"
+    ],
+    "contact": {
+        "repo": "https://github.com/BluSpring/domum-ornamentum"
+    },
+    "license": "LGPL-3.0-only",
+    "icon": "structurize.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "com.ldtteam.structurize.Structurize"
+        ],
+        "client": [
+            "com.ldtteam.structurize.client.StructurizeClient"
+        ],
+        "fabric-datagen": [
+            "com.ldtteam.structurize.datagen.StructurizeDatagen"
+        ]
+    },
+    "mixins": [
+        "structurize.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${loader_version}",
+        "fabric-api": ">=${fabric_version}",
+        "minecraft": "${minecraft_version}",
+        "architectury": ">=${architectury_version}",
+        "domum_ornamentum": "*",
+        "blockui": "*"
+    },
+    "accessWidener": "structurize.accesswidener"
+}

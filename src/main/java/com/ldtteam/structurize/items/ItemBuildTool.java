@@ -2,12 +2,12 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
 import static com.ldtteam.structurize.api.util.constant.Constants.GROUNDSTYLE_RELATIVE;
@@ -52,8 +52,7 @@ public class ItemBuildTool extends AbstractItemStructurize
     }
 
     @Override
-    public ItemStack getCraftingRemainingItem(final ItemStack itemStack)
-    {
+    public ItemStack getRecipeRemainder(ItemStack itemStack) {
         //we want to return the build tool when use for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
@@ -63,9 +62,14 @@ public class ItemBuildTool extends AbstractItemStructurize
     }
 
     @Override
+    public boolean hasCraftingRemainingItem() {
+        return true;
+    }
+
+    /*@Override
     public boolean hasCraftingRemainingItem(final ItemStack itemStack)
     {
         //we want to return the build tool when use for crafting
         return !ItemStackUtils.isEmpty(itemStack);
-    }
+    }*/
 }

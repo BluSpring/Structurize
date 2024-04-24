@@ -1,8 +1,10 @@
 package com.ldtteam.structurize.util;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ public class InventoryUtils
      * @param requiredItems the list of items.
      * @return true if so, else false.
      */
-    public static boolean hasRequiredItems(final IItemHandler inventory, final List<ItemStack> requiredItems)
+    public static boolean hasRequiredItems(final SlottedStackStorage inventory, final List<ItemStack> requiredItems)
     {
         final List<ItemStack> listToDiscount = new ArrayList<>();
         for (final ItemStack stack : requiredItems)
@@ -26,7 +28,7 @@ public class InventoryUtils
             listToDiscount.add(stack.copy());
         }
 
-        for (int slot = 0; slot < inventory.getSlots(); slot++)
+        for (int slot = 0; slot < inventory.getSlotCount(); slot++)
         {
             final ItemStack content = inventory.getStackInSlot(slot);
             if (content.isEmpty())
@@ -67,9 +69,9 @@ public class InventoryUtils
     /**
      * Method to transfers a stack to the next best slot in the target inventory.
      *
-     * @param targetHandler The {@link IItemHandler} that works as Target.
+     * @param targetHandler The {@link SlottedStackStorage} that works as Target.
      */
-    public static void transferIntoNextBestSlot(final ItemStack stack, final IItemHandler targetHandler)
+    public static void transferIntoNextBestSlot(final ItemStack stack, final SlottedStackStorage targetHandler)
     {
         if(stack.isEmpty())
         {
@@ -77,9 +79,13 @@ public class InventoryUtils
         }
 
         ItemStack sourceStack = stack.copy();
-        for (int i = 0; i < targetHandler.getSlots(); i++)
+        for (int i = 0; i < targetHandler.getSlotCount(); i++)
         {
-            sourceStack = targetHandler.insertItem(i, sourceStack, false);
+            var transaction = Transaction.openOuter();
+            var total = targetHandler.insertSlot(i, ItemVariant.of(sourceStack), sourceStack.getCount(), transaction);
+            sourceStack = sourceStack.copyWithCount(sourceStack.getMaxStackSize() - (int) total);
+            transaction.commit();
+            transaction.close();
             if (sourceStack.isEmpty())
             {
                 return;
@@ -92,16 +98,22 @@ public class InventoryUtils
      * @param tempStack the stack.
      * @param handler the handler.
      */
-    public static void consumeStack(final ItemStack tempStack, final IItemHandler handler)
+    public static void consumeStack(final ItemStack tempStack, final SlottedStackStorage handler)
     {
         int count = tempStack.getCount();
-        final ItemStack container = tempStack.getCraftingRemainingItem();
+        final ItemStack container = tempStack.getRecipeRemainder();
 
-        for (int i = 0; i < handler.getSlots(); i++)
+        for (int i = 0; i < handler.getSlotCount(); i++)
         {
             if (ItemStackUtils.compareItemStacksIgnoreStackSize(handler.getStackInSlot(i), tempStack))
             {
-                final ItemStack result = handler.extractItem(i, count, false);
+                var stackInSlot = handler.getStackInSlot(i);
+                var transaction = Transaction.openOuter();
+                var total = handler.extractSlot(i, ItemVariant.of(stackInSlot), count, transaction);
+                transaction.commit();
+                transaction.close();
+
+                final ItemStack result = stackInSlot.copyWithCount((int) total);
                 if (result.getCount() == count)
                 {
                     if (!container.isEmpty())

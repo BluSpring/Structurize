@@ -1,35 +1,67 @@
 package com.ldtteam.structurize.event;
 
-import com.ldtteam.structurize.blockentities.ModBlockEntities;
-import com.ldtteam.structurize.blocks.ModBlocks;
-import com.ldtteam.structurize.client.*;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.api.util.constant.Constants;
+import com.ldtteam.structurize.blockentities.ModBlockEntities;
+import com.ldtteam.structurize.blocks.ModBlocks;
+import com.ldtteam.structurize.client.BlueprintHandler;
+import com.ldtteam.structurize.client.ClientItemStackTooltip;
+import com.ldtteam.structurize.client.ModKeyMappings;
+import com.ldtteam.structurize.client.TagSubstitutionRenderer;
 import com.ldtteam.structurize.client.model.OverlaidModelLoader;
 import com.ldtteam.structurize.items.ItemStackTooltip;
+import dev.architectury.registry.client.gui.ClientTooltipComponentRegistry;
+import io.github.fabricators_of_create.porting_lib.config.ConfigEvents;
+import io.github.fabricators_of_create.porting_lib.config.ModConfig;
+import io.github.fabricators_of_create.porting_lib.models.geometry.IGeometryLoader;
+import io.github.fabricators_of_create.porting_lib.models.geometry.RegisterGeometryLoadersCallback;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import java.util.Map;
 
 public class ClientLifecycleSubscriber
 {
+    public static void init() {
+        onClientInit();
+        doClientStuff();
+
+        RegisterGeometryLoadersCallback.EVENT.register(loaders -> {
+            registerGeometry(loaders);
+        });
+
+        registerRenderers();
+        registerTooltips();
+        registerKeys();
+
+        ConfigEvents.LOADING.register(config -> {
+            if (config.getModId().equals(Constants.MOD_ID)) {
+                onConfigLoad(config);
+            }
+        });
+
+        ConfigEvents.RELOADING.register(config -> {
+            if (config.getModId().equals(Constants.MOD_ID)) {
+                onConfigEdit(config);
+            }
+        });
+    }
+
     /**
      * Called when client app is initialized.
      *
-     * @param event event
      */
-    @SubscribeEvent
-    public static void onClientInit(final FMLClientSetupEvent event)
+    public static void onClientInit()
     {
         final ResourceManager rm = Minecraft.getInstance().getResourceManager();
         if (rm instanceof final ReloadableResourceManager resourceManager)
@@ -53,46 +85,39 @@ public class ClientLifecycleSubscriber
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public static void doClientStuff(final EntityRenderersEvent.RegisterRenderers event)
+    @Environment(EnvType.CLIENT)
+    public static void doClientStuff()
     {
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.blockSubstitution.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.blockSubstitution.get(), RenderType.translucent());
     }
 
-    @SubscribeEvent
-    public static void registerGeometry(final ModelEvent.RegisterGeometryLoaders event)
+    public static void registerGeometry(Map<ResourceLocation, IGeometryLoader<?>> loaders)
     {
-        event.register("overlaid", new OverlaidModelLoader());
+        loaders.put(new ResourceLocation(Constants.MOD_ID, "overlaid"), new OverlaidModelLoader());
     }
 
-    @SubscribeEvent
-    public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event)
+    public static void registerRenderers()
     {
-        event.registerBlockEntityRenderer(ModBlockEntities.TAG_SUBSTITUTION.get(), TagSubstitutionRenderer::new);
+        BlockEntityRenderers.register(ModBlockEntities.TAG_SUBSTITUTION.get(), TagSubstitutionRenderer::new);
     }
 
-    @SubscribeEvent
-    public static void registerTooltips(final RegisterClientTooltipComponentFactoriesEvent event)
+    public static void registerTooltips()
     {
-        event.register(ItemStackTooltip.class, ClientItemStackTooltip::new);
+        ClientTooltipComponentRegistry.register(ItemStackTooltip.class, ClientItemStackTooltip::new);
     }
 
-    @SubscribeEvent
-    public static void registerKeys(final RegisterKeyMappingsEvent event)
+    public static void registerKeys()
     {
-        ModKeyMappings.register(event);
+        ModKeyMappings.register();
     }
 
-    @SubscribeEvent
-    public static void onConfigLoad(final ModConfigEvent.Loading event)
+    public static void onConfigLoad(ModConfig config)
     {
-        Structurize.getConfig().onConfigLoad(event.getConfig());
+        Structurize.getConfig().onConfigLoad(config);
     }
 
-    @SubscribeEvent
-    public static void onConfigEdit(final ModConfigEvent.Reloading event)
+    public static void onConfigEdit(ModConfig config)
     {
-        Structurize.getConfig().onConfigReload(event.getConfig());
+        Structurize.getConfig().onConfigReload(config);
     }
 }

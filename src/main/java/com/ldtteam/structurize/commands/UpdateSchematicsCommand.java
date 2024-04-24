@@ -7,15 +7,15 @@ import com.ldtteam.structurize.blueprints.v1.DataFixerUtils;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
@@ -247,7 +247,7 @@ public class UpdateSchematicsCommand extends AbstractCommand
             for (int i = 0; i < modListSize; i++)
             {
                 requiredMods.add((modsList.get(i)).getAsString());
-                if (!requiredMods.get(i).equals("minecraft") && !ModList.get().getModContainerById(requiredMods.get(i)).isPresent())
+                if (!requiredMods.get(i).equals("minecraft") && FabricLoader.getInstance().getModContainer(requiredMods.get(i)).isEmpty())
                 {
                     LogManager.getLogger().warn("Found missing mods for Blueprint, some blocks may be missing: " + requiredMods.get(i));
                     missingMods.add(requiredMods.get(i));

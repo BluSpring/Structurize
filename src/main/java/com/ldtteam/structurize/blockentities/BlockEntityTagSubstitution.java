@@ -3,6 +3,7 @@ package com.ldtteam.structurize.blockentities;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.RotationMirror;
+import io.github.fabricators_of_create.porting_lib.block.CustomDataPacketHandlingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -19,12 +20,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The block entity for BlockTagSubstitution
  */
-public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProviderBE
+public class BlockEntityTagSubstitution extends BlockEntity implements IBlueprintDataProviderBE, CustomDataPacketHandlingBlockEntity
 {
     /**
      * The schematic name of the block.

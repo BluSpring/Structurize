@@ -2,11 +2,10 @@ package com.ldtteam.structurize.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.github.fabricators_of_create.porting_lib.util.EnvExecutor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
@@ -105,7 +104,7 @@ public final class LanguageHandler
 
             // Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
             String locale =
-                DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().options.languageCode);
+                EnvExecutor.<String>unsafeRunForDist(() -> () -> Minecraft.getInstance() == null || Minecraft.getInstance().options == null ? null : Minecraft.getInstance().options.languageCode, () -> () -> null);
 
             if (locale == null)
             {

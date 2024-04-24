@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.placement;
 
+import com.ldtteam.structurize.fabric.TriPredicate;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.TriPredicate;
 
 import java.util.Collections;
 import java.util.function.Supplier;

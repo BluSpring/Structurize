@@ -3,12 +3,13 @@ package com.ldtteam.structurize.storage.rendering;
 import com.ldtteam.structurize.Network;
 import com.ldtteam.structurize.network.messages.SyncPreviewCacheToClient;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import io.github.fabricators_of_create.porting_lib.entity.events.PlayerEvents;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.entity.player.Player;
+
 import java.util.UUID;
 
 /**
@@ -21,15 +22,20 @@ public class ServerPreviewDistributor
      */
     private static Object2BooleanMap<UUID> registeredPlayers = new Object2BooleanOpenHashMap<>();
 
-    @SubscribeEvent
-    public static void onLogout(final PlayerEvent.PlayerLoggedOutEvent event)
+    public static void init() {
+        PlayerEvents.LOGGED_OUT.register(player -> {
+            onLogout(player);
+        });
+    }
+
+    public static void onLogout(Player entity)
     {
-        if (event.getEntity().level().isClientSide)
+        if (entity.level().isClientSide)
         {
             RenderingCache.clear();
             return;
         }
-        registeredPlayers.removeBoolean(event.getEntity().getUUID());
+        registeredPlayers.removeBoolean(entity.getUUID());
     }
 
     /**

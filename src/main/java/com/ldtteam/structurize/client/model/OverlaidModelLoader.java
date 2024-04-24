@@ -3,8 +3,8 @@ package com.ldtteam.structurize.client.model;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import io.github.fabricators_of_create.porting_lib.models.geometry.IGeometryLoader;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import org.jetbrains.annotations.NotNull;
 
 /**

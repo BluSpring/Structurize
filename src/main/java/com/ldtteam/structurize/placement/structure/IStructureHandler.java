@@ -1,16 +1,17 @@
 package com.ldtteam.structurize.placement.structure;
 
 import com.ldtteam.structurize.api.util.ItemStackUtils;
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.api.util.Log;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.InventoryUtils;
 import com.ldtteam.structurize.util.PlacementSettings;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.ItemStack;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -83,7 +84,7 @@ public interface IStructureHandler
      * @return the IItemhandler (may be null!).
      */
     @Nullable
-    IItemHandler getInventory();
+    SlottedStackStorage getInventory();
 
     /**
      * Trigger success AFTER placement of block.

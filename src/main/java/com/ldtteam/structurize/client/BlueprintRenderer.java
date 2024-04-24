@@ -6,35 +6,30 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.blueprints.v1.BlueprintUtils;
 import com.ldtteam.structurize.client.fakelevel.BlueprintBlockAccess;
+import com.ldtteam.structurize.fabric.WorldRenderContextHelper;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.ldtteam.structurize.tag.ModTags;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlueprintMissHitResult;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import io.github.fabricators_of_create.porting_lib.block.CustomRenderBoundingBoxBlockEntity;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -50,32 +45,20 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SkullBlock;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.CampfireBlockEntity;
-import net.minecraft.world.level.block.entity.EnchantmentTableBlockEntity;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.model.data.ModelData;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL20C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -137,7 +120,7 @@ public class BlueprintRenderer implements AutoCloseable
         final RandomSource random = RandomSource.create();
 
         clearVertexBuffers();
-        final Map<BlockPos, ModelData> teModelData = new HashMap<>();
+        final Map<BlockPos, Object> teModelData = new HashMap<>();
         final Map<BlockPos, BlockEntity> tileEntitiesMap = BlueprintUtils.instantiateTileEntities(blueprint, blockAccess, teModelData);
         entities = BlueprintUtils.instantiateEntities(blueprint, blockAccess);
 
@@ -162,7 +145,7 @@ public class BlueprintRenderer implements AutoCloseable
 
                     Optional.ofNullable(replacement.createBlockEntity(blockPos)).ifPresent(newBe -> {
                         newBe.setLevel(blockAccess);
-                        teModelData.put(blockPos, newBe.getModelData());
+                        teModelData.put(blockPos, newBe.getRenderData());
                         tileEntitiesMap.put(blockPos, newBe);
                     });
                 }
@@ -195,17 +178,22 @@ public class BlueprintRenderer implements AutoCloseable
                 if (state.getRenderShape() != RenderShape.INVISIBLE)
                 {
                     final BakedModel blockModel = blockRenderer.getBlockModel(state);
-                    final ModelData modelData = blockModel.getModelData(blockAccess, blockPos, state, teModelData.getOrDefault(blockPos, ModelData.EMPTY));
+                    //final ModelData modelData = blockModel.getModelData(blockAccess, blockPos, state, teModelData.getOrDefault(blockPos, ModelData.EMPTY));
 
                     matrixStack.pushPose();
                     matrixStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-                    for (final RenderType renderType : blockModel.getRenderTypes(state, random, modelData))
+                    /*for (final RenderType renderType : blockModel.getRenderTypes(state, random, modelData))
                     {
                         final BufferBuilder buffer = newBuffers.builder(renderType);
                         blockRenderer.renderBatched(state, blockPos, blockAccess, matrixStack, buffer, true, random, modelData, renderType);
                         renderType.clearRenderState();
-                    }
+                    }*/
+
+                    var renderType = ItemBlockRenderTypes.getRenderType(state, true);
+                    final BufferBuilder buffer = newBuffers.builder(renderType);
+                    blockRenderer.renderBatched(state, blockPos, blockAccess, matrixStack, buffer, true, random);
+                    renderType.clearRenderState();
                     matrixStack.popPose();
                 }
 
@@ -240,7 +228,7 @@ public class BlueprintRenderer implements AutoCloseable
     /**
      * Draws structure into world.
      */
-    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    public void draw(final BlueprintPreviewData previewData, final BlockPos pos, final WorldRenderContext ctx)
     {
         // we've crashed hard before, full skip
         if (crashingObjects == null)
@@ -308,12 +296,12 @@ public class BlueprintRenderer implements AutoCloseable
      * 
      * @return suppressed exceptions
      */
-    public Map<Object, Exception> drawUnsafe(final BlueprintPreviewData previewData, final BlockPos pos, final RenderLevelStageEvent ctx)
+    public Map<Object, Exception> drawUnsafe(final BlueprintPreviewData previewData, final BlockPos pos, final WorldRenderContext ctx)
     {
         final BlockPos anchorPos = pos.subtract(previewData.getBlueprint().getPrimaryBlockOffset());
 
         // cull entire rendering
-        if (!ctx.getFrustum().isVisible(previewData.getBlueprint().getAABB().move(anchorPos)) && !bypassMainFrustum)
+        if (!ctx.frustum().isVisible(previewData.getBlueprint().getAABB().move(anchorPos)) && !bypassMainFrustum)
         {
             return Map.of();
         }
@@ -321,8 +309,8 @@ public class BlueprintRenderer implements AutoCloseable
         final Map<Object, Exception> suppressedExceptions = new IdentityHashMap<>();
         final Minecraft mc = Minecraft.getInstance();
         final long gameTime = mc.level.getGameTime();
-        final PoseStack matrixStack = ctx.getPoseStack();
-        final float partialTicks = ctx.getPartialTick();
+        final PoseStack matrixStack = ctx.matrixStack();
+        final float partialTicks = ctx.tickDelta();
 
         mc.getProfiler().push("struct_render_init");
         
@@ -358,7 +346,7 @@ public class BlueprintRenderer implements AutoCloseable
         mc.getBlockEntityRenderDispatcher().prepare(blockAccess, ourCamera, BlueprintMissHitResult.MISS);
         mc.getEntityRenderDispatcher().prepare(blockAccess, ourCamera, mc.crosshairPickEntity);
 
-        final Frustum blueprintLocalFrustum = new Frustum(ctx.getFrustum());
+        final Frustum blueprintLocalFrustum = new Frustum(ctx.frustum());
         blueprintLocalFrustum.prepare(ourCamera.getPosition().x(), ourCamera.getPosition().y(), ourCamera.getPosition().z());
         bypassMainFrustum = false;
 
@@ -373,7 +361,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         // Render blocks
 
-        if (ctx.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL)
+        if (WorldRenderContextHelper.isAfterLevelStage)
         {
             FogRenderer.setupFog(mc.gameRenderer.getMainCamera(),
                 FogRenderer.FogMode.FOG_TERRAIN,
@@ -504,7 +492,26 @@ public class BlueprintRenderer implements AutoCloseable
             }
 
             bypassMainFrustum |= renderer.shouldRenderOffScreen(tileEntity);
-            if (!blueprintLocalFrustum.isVisible(tileEntity.getRenderBoundingBox()) && !renderer.shouldRenderOffScreen(tileEntity))
+
+            AABB renderBb;
+
+            if (tileEntity instanceof CustomRenderBoundingBoxBlockEntity renderBoundingBoxBlockEntity) {
+                renderBb = renderBoundingBoxBlockEntity.getRenderBoundingBox();
+            } else {
+                AABB box = CustomRenderBoundingBoxBlockEntity.INFINITE_EXTENT_AABB;
+                try {
+                    VoxelShape collisionShape = tileEntity.getBlockState().getCollisionShape(tileEntity.getLevel(), pos);
+                    if (!collisionShape.isEmpty()) {
+                        box = collisionShape.bounds().move(pos);
+                    }
+                } catch (Exception e) {
+                    box = new AABB(pos.offset(-1, 0, -1), pos.offset(1, 1, 1));
+                }
+
+                renderBb = box;
+            }
+
+            if (!blueprintLocalFrustum.isVisible(renderBb) && !renderer.shouldRenderOffScreen(tileEntity))
             {
                 continue;
             }
@@ -554,7 +561,7 @@ public class BlueprintRenderer implements AutoCloseable
 
         RenderSystem.applyModelViewMatrix(); // ensure no polution
         Lighting.setupLevel(matrixStack.last().pose());
-        if (ctx.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL)
+        if (WorldRenderContextHelper.isAfterLevelStage)
         {
             FogRenderer.setupNoFog();
         }

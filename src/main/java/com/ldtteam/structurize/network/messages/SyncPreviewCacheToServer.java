@@ -1,10 +1,10 @@
 package com.ldtteam.structurize.network.messages;
 
+import com.ldtteam.domumornamentum.fabric.NetworkContext;
 import com.ldtteam.structurize.storage.rendering.ServerPreviewDistributor;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
+import net.fabricmc.api.EnvType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -41,13 +41,13 @@ public class SyncPreviewCacheToServer implements IMessage
 
     @Nullable
     @Override
-    public LogicalSide getExecutionSide()
+    public EnvType getExecutionSide()
     {
-        return LogicalSide.SERVER;
+        return EnvType.SERVER;
     }
 
     @Override
-    public void onExecute(final NetworkEvent.Context ctxIn, final boolean isLogicalServer)
+    public void onExecute(final NetworkContext ctxIn, final boolean isLogicalServer)
     {
         ServerPreviewDistributor.distribute(this.previewData, ctxIn.getSender());
     }

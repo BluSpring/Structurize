@@ -13,12 +13,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.ForgeRenderTypes;
-import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,7 +51,7 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
                        final int packedLight,
                        final int packedOverlay)
     {
-        final RenderType renderType = ForgeRenderTypes.ITEM_LAYERED_TRANSLUCENT.get();
+        final RenderType renderType = RenderType.entityTranslucent(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(entity.getType()));
 
         render(entity.getReplacement(), entity.getTilePos(), partialTick, poseStack, buffers, packedLight, packedOverlay, renderType);
     }
@@ -65,12 +64,12 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
                              final int packedLight,
                              final int packedOverlay)
     {
-        final RenderType renderType = ForgeRenderTypes.ITEM_LAYERED_TRANSLUCENT.get();
+        final RenderType renderType = RenderType.itemEntityTranslucentCull(BuiltInRegistries.ITEM.getKey(stack.getItem()));
 
         if (stack.getItem() instanceof ItemTagSubstitution anchor)
         {
             this.context.getBlockRenderDispatcher().renderSingleBlock(anchor.getBlock().defaultBlockState(),
-                    poseStack, buffers, packedLight, packedOverlay, ModelData.EMPTY, renderType);
+                    poseStack, buffers, packedLight, packedOverlay/*, ModelData.EMPTY, renderType*/);
 
             render(anchor.getAbsorbedBlock(stack), BlockPos.ZERO, 0, poseStack, buffers, packedLight, packedOverlay, renderType);
         }
@@ -104,13 +103,13 @@ public class TagSubstitutionRenderer extends BlockEntityWithoutLevelRenderer imp
                 final BlockEntityRenderDispatcher entityDispatcher = this.context.getBlockEntityRenderDispatcher();
                 if (replacement.getBlockState().getRenderShape() == RenderShape.MODEL)
                 {
-                    dispatcher.renderSingleBlock(replacement.getBlockState(), poseStack, buffers, packedLight, packedOverlay, replacementEntity.getModelData(), renderType);
+                    dispatcher.renderSingleBlock(replacement.getBlockState(), poseStack, buffers, packedLight, packedOverlay/*, replacementEntity.getRenderData(), renderType*/);
                 }
                 entityDispatcher.render(replacementEntity, partialTick, poseStack, buffers);
             }
             else
             {
-                dispatcher.renderSingleBlock(replacement.getBlockState(), poseStack, buffers, packedLight, packedOverlay, ModelData.EMPTY, renderType);
+                dispatcher.renderSingleBlock(replacement.getBlockState(), poseStack, buffers, packedLight, packedOverlay/*, ModelData.EMPTY, renderType*/);
             }
 
             poseStack.popPose();

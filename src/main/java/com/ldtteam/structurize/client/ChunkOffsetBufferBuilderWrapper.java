@@ -1,17 +1,11 @@
 package com.ldtteam.structurize.client;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
-import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import java.nio.ByteBuffer;
 
 /**
  * INLINE: delegate class, check method overrides
@@ -60,11 +54,11 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
         delegate.unsetDefaultColor();
     }
 
-    @Override
+    /*@Override
     public VertexConsumer misc(VertexFormatElement element, int... rawData)
     {
         return delegate.misc(element, rawData);
-    }
+    }*/
 
     @Override
     public VertexConsumer uv(float p_85948_, float p_85949_)
@@ -90,7 +84,7 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
         return delegate.normal(p_86005_, p_86006_, p_86007_);
     }
 
-    @Override
+    /*@Override
     public void putBulkData(Pose pose,
         BakedQuad bakedQuad,
         float red,
@@ -108,7 +102,7 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
     public int applyBakedLighting(int packedLight, ByteBuffer data)
     {
         return delegate.applyBakedLighting(packedLight, data);
-    }
+    }*/
 
     @Override
     public VertexConsumer color(float p_85951_, float p_85952_, float p_85953_, float p_85954_)
@@ -122,11 +116,11 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
         return delegate.color(p_193480_);
     }
 
-    @Override
+    /*@Override
     public void applyBakedNormals(Vector3f generated, ByteBuffer data, Matrix3f normalTransform)
     {
         delegate.applyBakedNormals(generated, data, normalTransform);
-    }
+    }*/
 
     @Override
     public VertexConsumer uv2(int p_85970_)
@@ -196,7 +190,7 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
         delegate.restoreSortState(p_166776_);
     }
 
-    @Override
+    /*@Override
     public void putBulkData(Pose p_85996_,
         BakedQuad p_85997_,
         float[] p_85998_,
@@ -209,7 +203,7 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
         boolean p_86004_)
     {
         delegate.putBulkData(p_85996_, p_85997_, p_85998_, p_85999_, p_86000_, p_86001_, alpha, p_86002_, p_86003_, p_86004_);
-    }
+    }*/
 
     @Override
     public void begin(Mode p_166780_, VertexFormat p_166781_)
@@ -351,9 +345,9 @@ public class ChunkOffsetBufferBuilderWrapper extends BufferBuilder
         return delegate.building();
     }
 
-    @Override
+    /*@Override
     public void putBulkData(ByteBuffer buffer)
     {
         delegate.putBulkData(buffer);
-    }
+    }*/
 }

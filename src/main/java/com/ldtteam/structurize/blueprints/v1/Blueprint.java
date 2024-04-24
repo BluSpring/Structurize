@@ -1,15 +1,15 @@
 package com.ldtteam.structurize.blueprints.v1;
 
-import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.api.util.ItemStackUtils;
+import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blockentities.ModBlockEntities;
+import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import com.ldtteam.structurize.blueprints.FacingFixer;
 import com.ldtteam.structurize.client.fakelevel.IFakeLevelBlockGetter;
-import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.util.BlockInfo;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.BlueprintPositionInfo;
@@ -950,7 +950,7 @@ public class Blueprint implements IFakeLevelBlockGetter
      * @return blockEntity without world
      */
     @Override
-    @javax.annotation.Nullable
+    @Nullable
     public BlockEntity getBlockEntity(final BlockPos pos)
     {
         return BlueprintUtils.constructTileEntity(getBlockInfoAsMap().get(pos), null);

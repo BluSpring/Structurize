@@ -3,6 +3,7 @@ package com.ldtteam.structurize.items;
 import com.ldtteam.structurize.api.util.BlockPosUtil;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import com.ldtteam.structurize.client.gui.WindowTagTool;
+import io.github.fabricators_of_create.porting_lib.item.api.extensions.RepairableItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,7 @@ import java.util.Map;
 /**
  * Item for tagging positions with tags
  */
-public class ItemTagTool extends AbstractItemWithPosSelector
+public class ItemTagTool extends AbstractItemWithPosSelector implements RepairableItem
 {
     public static final String TAG_ANCHOR_POS         = "anchorpostag";
     public static final String TAG_CURRENT_TAG        = "currenttag";
@@ -34,7 +35,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
      */
     public ItemTagTool()
     {
-        this(new Item.Properties().durability(0).setNoRepair().rarity(Rarity.UNCOMMON));
+        this(new Item.Properties().durability(0).rarity(Rarity.UNCOMMON));
     }
 
     /**
@@ -210,6 +211,11 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             }
         }
 
+        return false;
+    }
+
+    @Override
+    public boolean isRepairable(ItemStack stack) {
         return false;
     }
 }

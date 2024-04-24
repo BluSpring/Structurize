@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
@@ -52,14 +51,14 @@ public class ClientItemStackTooltip implements ClientTooltipComponent
      */
     private Font getFont(final ItemStack itemStack)
     {
-        if (itemStack != null)
+        /*if (itemStack != null)
         {
             final Font font = IClientItemExtensions.of(itemStack).getFont(itemStack, IClientItemExtensions.FontContext.ITEM_COUNT);
             if (font != null)
             {
                 return font;
             }
-        }
+        }*/
         return Minecraft.getInstance().font;
     }
 }

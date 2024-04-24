@@ -8,14 +8,14 @@ import com.ldtteam.structurize.network.messages.SyncPreviewCacheToServer;
 import com.ldtteam.structurize.storage.StructurePacks;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
@@ -168,7 +168,7 @@ public class BlueprintPreviewData
      * Get the current blueprint to render.
      * @return the blueprint or null if not ready yet.
      */
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public Blueprint getBlueprint()
     {
         if (pos == null)
@@ -199,7 +199,7 @@ public class BlueprintPreviewData
      * Set a blueprint that is alreayd loaded.
      * @param blueprint the blueprint to set.
      */
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public void setBlueprint(final Blueprint blueprint)
     {
         this.blueprintFuture = null;
@@ -217,7 +217,7 @@ public class BlueprintPreviewData
     /**
      * Mirror the blueprint.
      */
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public void mirror()
     {
         this.rotationMirror = this.rotationMirror.mirrorate();
@@ -228,7 +228,7 @@ public class BlueprintPreviewData
      * Rotate the preview by a certain quantity.
      * @param rotation the rotation factor.
      */
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public void rotate(final Rotation rotation)
     {
         this.rotationMirror = this.rotationMirror.rotate(rotation);
@@ -239,7 +239,7 @@ public class BlueprintPreviewData
      * Rotate/mirror the preview to given value.
      * @param rotationMirror new rot/mir for blueprint
      */
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public void setRotationMirror(final RotationMirror rotationMirror)
     {
         this.rotationMirror = rotationMirror;
@@ -363,7 +363,7 @@ public class BlueprintPreviewData
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private void applyRotationMirrorAndSync()
     {
         if (blueprint == null)

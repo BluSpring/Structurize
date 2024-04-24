@@ -19,14 +19,15 @@ import com.ldtteam.structurize.util.IOPool;
 import com.ldtteam.structurize.util.PlacementSettings;
 import com.ldtteam.structurize.util.RotationMirror;
 import com.ldtteam.structurize.util.TickedWorldOperation;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.forgespi.language.IModInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -151,9 +152,8 @@ public class BlueprintPlacementHandling
                 Files.write(blueprintParentPath.resolve("pack.json"), jsonObject.toString().getBytes());
 
                 final List<String> modList = new ArrayList<>();
-                for (IModInfo mod : ModList.get().getMods())
-                {
-                    modList.add(mod.getModId());
+                for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
+                    modList.add(mod.getMetadata().getId());
                 }
 
                 StructurePacks.discoverPackAtPath(blueprintParentPath, false, modList, true, LOCAL);

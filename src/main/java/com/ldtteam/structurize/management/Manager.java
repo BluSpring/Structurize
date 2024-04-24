@@ -1,14 +1,15 @@
 package com.ldtteam.structurize.management;
 
-import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.util.Log;
 import com.ldtteam.structurize.api.util.Shape;
+import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.placement.StructurePlacementUtils;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.ldtteam.structurize.util.ChangeStorage;
 import com.ldtteam.structurize.util.ITickedWorldOperation;
 import com.ldtteam.structurize.util.TickedWorldOperation;
+import io.github.fabricators_of_create.porting_lib.util.ServerLifecycleHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 
